@@ -1,0 +1,67 @@
+INSTRUCTION TO AGENT:
+
+You are to review, audit, and complete the user-provided freelance contract for Indian law compliance, incorporating all required clauses for INR/crypto/barter payments, escrow handling, smart contract automation, AI-powered dispute resolution, and jurisdiction. You must ensure the document is fully structured, with placeholders for missing details, and legally robust throughout.
+
+Follow the structure and content below:
+
+# Freelance Services Agreement
+
+## Parties
+This Agreement is made between:
+- Client: [Client Name] [Client Address] [Client Contact]
+- Freelancer: [Freelancer Name] [Freelancer Address] [Freelancer Contact]
+
+If any party info is missing, insert bracketed placeholders.
+
+## Project Scope
+[Project Description]
+[Milestones]
+[Deadlines]
+[Deliverables]
+If missing, add placeholders for all required details.
+
+## Payment Clause
+The Parties agree that payment for services rendered may be made in Indian Rupees (INR), cryptocurrency (including but not limited to Bitcoin, Ethereum, USDT, or other Virtual Digital Assets as per Indian law), or by lawful barter (as defined in Section 23, Indian Contract Act, 1872). 
+For cryptocurrency or barter, the exact value must be determined and recorded in INR on the date of transaction/settlement for tax and legal purposes. 
+All parties are responsible for compliance with Indian tax laws, including declaration of professional income under Section 28 of the Income Tax Act, 1961. 
+Receipt of cryptocurrency or barter is NOT recognized as legal tender under Indian law but is considered contractually binding between parties under the Indian Contract Act, 1872. 
+All payment transactions, INR conversions, and barter details must be documented and preserved.
+
+## Escrow and Deposit Clause
+Prior to commencement of work, the Client shall deposit the agreed compensation (in INR, cryptocurrency, or barter-equivalent value) into an escrow smart contract on blockchain, or a mutually nominated escrow account.  
+Escrowed amounts or assets are to be *locked* and inaccessible until both parties approve release, OR in case of a dispute, until resolution is completed per this agreement.  
+If there is a conflict, the escrow remains frozen until the AI agent, mediator, arbitrator, or court has resolved the issue.
+Records of all escrow transactions are to be maintained, and contracts must specify the escrow wallet/account.
+
+## Smart Contract Clause
+The Agreement may be executed or supplemented using a blockchain-based smart contract.  
+Such a smart contract automates payments, milestone tracking, and digital audit logging.  
+All actions and signatures executed on-chain are valid or enforceable under the Indian Contract Act, 1872 and Information Technology Act, 2000.  
+Digital records from the contract may be relied upon as evidence.
+
+## AI Dispute Resolution and Fallback
+In case of any controversy, claim, or dispute arising from this Agreement, the parties shall first submit the issue to an AI agent for automated assessment and suggested resolution.  
+The AI agent will review all on-chain and off-chain evidence, project records, milestones, payment status, and recommend a settlement.  
+If the dispute remains unresolved or either Party disagrees with the outcome after [X] days, the matter shall proceed to mediation/arbitration as per the Arbitration & Conciliation Act, 1996, and, if still unresolved, to the courts of India.  
+All final compensation, awards, or damages are to be paid in INR, with conversion from crypto or barter as per prevailing rates on date of settlement.
+
+## Jurisdiction
+This Agreement is governed by the laws of India, including but not limited to:
+- Indian Contract Act, 1872
+- Information Technology Act, 2000
+- Arbitration & Conciliation Act, 1996
+Only lawful goods/services may be accepted for barter as per Section 23, Indian Contract Act, 1872.
+Cryptocurrency is defined according to current Indian law as a Virtual Digital Asset (VDA), not legal tender, but permitted for settlement by mutual agreement in commercial contracts.
+
+## Signatures
+[Client e-signature]
+[Freelancer e-signature]
+[Date Block]
+
+INSTRUCTIONS:
+- Where details above are missing, ensure placeholders are present for later filling.
+- If a clause or section in the uploaded contract is incomplete or ambiguous, expand and clarify it using the above template language.
+- Reorganize sections for clarity, add headings as needed, and update the Table of Contents if present.
+- At the end of the contract, add a brief summary or audit log of the changes and insertions you performed.
+
+Return the finalized, fully enriched contract for further review, digital signing, and onboarding.

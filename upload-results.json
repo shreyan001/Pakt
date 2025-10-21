@@ -1,0 +1,17 @@
+[
+  {
+    "filePath": "basic-flow.png",
+    "rootHash": "0xdc6e9af8a0e23c55967327e821e393e84ecd76ad77374930f580fc5f4ad2279d",
+    "txHash": "0x823a9b6d40dffcb0302e738e03cccb0bd0ec1acfa924bd5d2511e9bae05592d4"
+  },
+  {
+    "filePath": "legalPrompt.txt",
+    "rootHash": "0x1a31460d3f2e01cf41bf7aadc0957c650f428a4539ae28b1a0fd889df2667581",
+    "txHash": "0x136eb44127e1b4c98fdc2c9ca19d71eb288bfdc5b50d6a3713993154eb28db63"
+  },
+  {
+    "filePath": "logo.png",
+    "rootHash": "0x68f9ff82756ab8cbf8bdce665533d7eca2a4edb6e9f3b6663626ef8a5f3d33ab",
+    "txHash": "0x59f7fef6b741de6de6524b6c79a397092b22ddab269d5a0d6b049424040757ef"
+  }
+]
