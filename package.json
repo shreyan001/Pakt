@@ -7,13 +7,9 @@
     "dev": "next dev ",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "test:0g-storage": "node scripts/test-0g-storage.js",
-    "test:0g-inference": "node scripts/test-0g-inference.mjs"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@0glabs/0g-serving-broker": "^0.4.4",
-    "@0glabs/0g-ts-sdk": "^0.3.1",
     "@ai-sdk/openai": "^0.0.61",
     "@langchain/community": "^0.3.2",
     "@langchain/core": "^0.3.3",
