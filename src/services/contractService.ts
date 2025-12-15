@@ -158,9 +158,9 @@ function prepareBackendData(
           exchangeRateAt: now,
           exchangeRate: '1.00'
         },
-        'matic': {
+        'POL': {
           totalAmount: collectedData.financialInfo.zeroGEquivalent.toString(),
-          currency: 'MATIC',
+          currency: 'POL',
           network: 'polygon-amoy-testnet'
         }
       },
@@ -176,15 +176,15 @@ function prepareBackendData(
       fees: {
         platformFee: {
           inr: collectedData.financialInfo.platformFees.toString(),
-          matic: Math.floor(collectedData.financialInfo.platformFees / 10).toString()
+          POL: Math.floor(collectedData.financialInfo.platformFees / 10).toString()
         },
         storageFee: {
           inr: collectedData.financialInfo.escrowFee.toString(),
-          matic: Math.floor(collectedData.financialInfo.escrowFee / 10).toString()
+          POL: Math.floor(collectedData.financialInfo.escrowFee / 10).toString()
         },
         totalFees: {
           inr: (collectedData.financialInfo.platformFees + collectedData.financialInfo.escrowFee).toString(),
-          matic: Math.floor((collectedData.financialInfo.platformFees + collectedData.financialInfo.escrowFee) / 10).toString()
+          POL: Math.floor((collectedData.financialInfo.platformFees + collectedData.financialInfo.escrowFee) / 10).toString()
         }
       }
     },

@@ -4,11 +4,11 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Code, 
-  Globe, 
-  Gamepad2, 
-  Music, 
+import {
+  Code,
+  Globe,
+  Gamepad2,
+  Music,
   Smartphone,
   ArrowRight,
   CheckCircle,
@@ -47,7 +47,7 @@ const useCases = [
   {
     id: 4,
     title: "Digital Licensing/Royalties",
-    description: "Programmable license management with automatic royalty distribution. Handle access, usage tracking, and payments.",
+    description: "Programmable license management with autoPOL royalty distribution. Handle access, usage tracking, and payments.",
     icon: Music,
     color: "from-[#8b5cf6] to-[#7c3aed]",
     features: ["Usage tracking", "Royalty streams", "Access control", "Cross-market enforcement"],
@@ -85,7 +85,7 @@ export default function UseCasesSection() {
               What Pakt Enables
             </h2>
             <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              From freelance contracts to digital licensing, Pakt transforms how we handle digital agreements. 
+              From freelance contracts to digital licensing, Pakt transforms how we handle digital agreements.
               Experience trustless escrow, AI-enforced verification, and automated settlements.
             </p>
           </div>
@@ -94,7 +94,7 @@ export default function UseCasesSection() {
           <div className="grid lg:grid-cols-2 gap-8 mb-16">
             {useCases.map((useCase, index) => {
               const Icon = useCase.icon;
-              
+
               return (
                 <Card key={useCase.id} className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/15 transition-all duration-300 group">
                   <CardHeader>
@@ -110,7 +110,7 @@ export default function UseCasesSection() {
                       </div>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent>
                     {/* Features */}
                     <div className="mb-4">
@@ -166,7 +166,7 @@ export default function UseCasesSection() {
               <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
                 Join the future of digital collaboration. Create trustless, AI-enforced contracts in minutes.
               </p>
-              <Button 
+              <Button
                 onClick={handleGetStarted}
                 className="bg-gradient-to-r from-[#4299e1] to-[#3182ce] hover:from-[#ffd700] hover:to-[#f6ad55] hover:text-black text-white border-0 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 flex items-center space-x-2 shadow-lg mx-auto"
               >

@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 /**
  * @title PaktV1
  * @dev A decentralized escrow contract with AI agent verification.
- * Uses native tokens (MATIC on Polygon) for payments.
+ * Uses native tokens (POL on Polygon) for payments.
  * Implements three-party escrow: Initiator, Freelancer, and Verification Agent.
  */
 contract PaktV1 {
@@ -78,7 +78,7 @@ contract PaktV1 {
 
     /**
      * @dev Allows the initiator to create and fund an escrow order in a single transaction.
-     * Payment is made in native tokens (MATIC on Polygon).
+     * Payment is made in native tokens (POL on Polygon).
      * @param orderHash A unique hash representing the order (can be generated client-side).
      * @param freelancer The address of the freelancer.
      * @param escrowAmount The amount for the freelancer in native tokens.
@@ -163,7 +163,7 @@ contract PaktV1 {
 
     /**
      * @dev Allows freelancer to withdraw funds after payment approval.
-     * Uses native token transfer (MATIC on Polygon).
+     * Uses native token transfer (POL on Polygon).
      * @param orderHash The unique order identifier.
      */
     function withdrawFunds(bytes32 orderHash) external validateOrderExists(orderHash) onlyFreelancer(orderHash) {

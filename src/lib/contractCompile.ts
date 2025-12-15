@@ -102,7 +102,7 @@ contract TimeboxInferenceEscrowV2 {
         fund();
     }
 
-    /// @notice Client adds more funds; automatically deposited into vault.
+    /// @notice Client adds more funds; autoPOLally deposited into vault.
     function fund() public payable onlyClient {
         require(msg.value > 0, "no eth");
         fundedAmount += msg.value;
@@ -135,7 +135,7 @@ contract TimeboxInferenceEscrowV2 {
         emit Resumed(msg.sender, block.timestamp);
     }
 
-    /// @notice Provider claims pro-rata payment; pulls from vault (includes +1% bonus automatically).
+    /// @notice Provider claims pro-rata payment; pulls from vault (includes +1% bonus autoPOLally).
     function claim() external onlyProvider nonReentrant {
         require(startTimestamp != 0, "not started");
         uint256 nowTs = block.timestamp;

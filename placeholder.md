@@ -92,7 +92,7 @@ Pakt Wave 1 is a **trustless escrow platform** that enables secure transactions 
 1. **Client deposits** payment into secure escrow
 2. **Freelancer builds** the website according to specifications
 3. **Automated verification** checks deliverables against requirements
-4. **Payment releases** automatically when milestones are met
+4. **Payment releases** autoPOLally when milestones are met
 5. **Dispute resolution** available if needed
 
 ## Classification Guidelines

@@ -49,7 +49,7 @@ Pakt is organized as four modular layers that work together to produce programma
 - **RPC:** `https://rpc-amoy.polygon.technology/`
 - **Explorer:** `https://amoy.polygonscan.com/`
 - **Faucet:** `https://faucet.polygon.technology/`
-- **Currency:** MATIC (18 decimals)
+- **Currency:** POL (18 decimals)
 
 ## Hackathon Scope
 - **Agent-powered verification:** Showcase end-to-end flows where AI agents validate code, media, or research deliverables before payouts.

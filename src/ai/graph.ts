@@ -173,7 +173,7 @@ Pakt is a **trustless escrow platform** that enables secure transactions between
 1. **Client deposits** payment into secure escrow (in INR, executed as POL tokens)
 2. **Freelancer builds** the project according to specifications
 3. **Automated verification** checks deliverables against requirements
-4. **Payment releases** automatically when milestones are met
+4. **Payment releases** autoPOLally when milestones are met
 5. **Dispute resolution** available if needed
 
 ## Classification Guidelines
@@ -283,9 +283,9 @@ Always end your response with one of these hidden classification tags:
         };
     });
 
-    // Information Collection Node: Systematically collects all required project details
+    // Information Collection Node: SystePOLally collects all required project details
     graph.addNode("collect_initiator_info", async (state: ProjectState) => {
-        const COLLECTION_SYSTEM_TEMPLATE = `You are Pakt AI's information collection specialist. Your role is to systematically gather the core escrow inputs and advanced service options needed for contract setup.
+        const COLLECTION_SYSTEM_TEMPLATE = `You are Pakt AI's information collection specialist. Your role is to systePOLally gather the core escrow inputs and advanced service options needed for contract setup.
 
 ## CRITICAL RULES - READ CAREFULLY:
 1. **NEVER ASSUME OR INVENT INFORMATION** - Only use what the user explicitly provides
@@ -299,7 +299,7 @@ Always end your response with one of these hidden classification tags:
 2. **Project Description** - Detailed scope, what needs to be built (minimum 10 words)
 3. **Client Name** - Full name of the person/company hiring (e.g., "John Doe", "Acme Corp")
 4. **Email Address** - Valid email format (e.g., "john@example.com")
-5. **Wallet Address** - POL blockchain wallet (automatically captured if connected)
+5. **Wallet Address** - POL blockchain wallet (autoPOLally captured if connected)
 6. **Payment Amount** - Total project cost in INR (numbers only, e.g., "50000")
 
 ## Advanced Options (Collect after core items are complete):

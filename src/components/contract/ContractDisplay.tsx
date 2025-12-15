@@ -80,8 +80,8 @@ export default function ContractDisplay({ contract }: ContractDisplayProps) {
                         <span className="text-slate-200 font-semibold">₹{contract.escrow.amounts.inr.totalAmount}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span>Total Amount (MATIC):</span>
-                        <span className="text-slate-200 font-semibold">{contract.escrow.amounts['matic']?.totalAmount || contract.escrow.amounts['0G']?.totalAmount || 'N/A'} MATIC</span>
+                        <span>Total Amount (POL):</span>
+                        <span className="text-slate-200 font-semibold">{contract.escrow.amounts['POL']?.totalAmount || contract.escrow.amounts['0G']?.totalAmount || 'N/A'} POL</span>
                     </div>
                     <div className="pt-2 border-t border-slate-600/30">
                         <p className="text-slate-500 mb-1">Fee Breakdown:</p>

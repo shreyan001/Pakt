@@ -1,15 +1,15 @@
 import {
-    createSIWEConfig,
-    SIWECreateMessageArgs,
-    formatMessage,
-    SIWESession,
-    SIWEVerifyMessageArgs,
-  } from '@web3modal/siwe';
-  import { defaultWagmiConfig } from '@web3modal/wagmi/react/config';
-  import { getCsrfToken, getSession, signIn, signOut } from 'next-auth/react';
-  import { cookieStorage, createStorage } from 'wagmi';
-  import { createPublicClient, http, defineChain } from 'viem';
-  import { switchChain, getChainId } from '@wagmi/core';
+  createSIWEConfig,
+  SIWECreateMessageArgs,
+  formatMessage,
+  SIWESession,
+  SIWEVerifyMessageArgs,
+} from '@web3modal/siwe';
+import { defaultWagmiConfig } from '@web3modal/wagmi/react/config';
+import { getCsrfToken, getSession, signIn, signOut } from 'next-auth/react';
+import { cookieStorage, createStorage } from 'wagmi';
+import { createPublicClient, http, defineChain } from 'viem';
+import { switchChain, getChainId } from '@wagmi/core';
 
 // Get projectId from https://cloud.walletconnect.com
 export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
@@ -22,8 +22,8 @@ export const polygonAmoyTestnet = defineChain({
   name: 'Polygon Amoy Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'MATIC',
-    symbol: 'MATIC',
+    name: 'POL',
+    symbol: 'POL',
   },
   rpcUrls: {
     default: { http: ['https://rpc-amoy.polygon.technology/'] },

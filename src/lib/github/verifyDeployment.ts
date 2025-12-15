@@ -2,7 +2,7 @@ import { Octokit } from "@octokit/rest";
 import axios from 'axios';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN as string;
-const PROBLEMATIC_DEPLOYMENT_URL = 'https://satcontracts.vercel.app';
+const PROBLEPOL_DEPLOYMENT_URL = 'https://satcontracts.vercel.app';
 
 if (!GITHUB_TOKEN) {
   throw new Error('GITHUB_TOKEN environment variable is required');
@@ -44,9 +44,9 @@ export async function getRepoCommit(owner: string, repo: string, branch: string 
 }
 
 export async function getFileContentAtCommit(
-  owner: string, 
-  repo: string, 
-  commitSha: string, 
+  owner: string,
+  repo: string,
+  commitSha: string,
   path: string
 ): Promise<string> {
   try {
@@ -56,15 +56,15 @@ export async function getFileContentAtCommit(
       path,
       ref: commitSha,
     });
-    
+
     if (Array.isArray(response.data)) {
       throw new Error(`Path ${path} is a directory, not a file`);
     }
-    
+
     if ('content' in response.data) {
       return Buffer.from(response.data.content, "base64").toString();
     }
-    
+
     throw new Error(`File ${path} not found or is not a regular file`);
   } catch (error) {
     throw new Error(`Failed to get file content for ${path}: ${error}`);
@@ -151,7 +151,7 @@ export async function verifyRepoDeployment({
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error(`Verification failed: ${errorMessage}`);
-    
+
     return {
       verified: false,
       commitSha: '',
@@ -169,10 +169,10 @@ export function parseGitHubUrl(repoUrl: string): { owner: string; repo: string }
   if (!match) {
     throw new Error('Invalid GitHub URL format. Expected: https://github.com/owner/repo');
   }
-  
+
   const [, owner, repo] = match;
-  return { 
-    owner, 
+  return {
+    owner,
     repo: repo.replace(/\.git$/, '') // Remove .git suffix if present
   };
 }
@@ -198,19 +198,19 @@ export async function getRepoInfo(owner: string, repo: string, branch: string = 
     // Get repository information
     const repoResponse = await octokit.repos.get({ owner, repo });
     const repoData = repoResponse.data;
-    
+
     // Get latest commit
     const commitSha = await getRepoCommit(owner, repo, branch);
-    
+
     const deploymentUrls: string[] = [];
     let vercelUrlCandidate: string | undefined;
     let netlifyUrlCandidate: string | undefined;
     let githubPagesCandidate: string | undefined;
-    
+
     // Check homepage URL
-    if (repoData.homepage && repoData.homepage !== PROBLEMATIC_DEPLOYMENT_URL) {
+    if (repoData.homepage && repoData.homepage !== PROBLEPOL_DEPLOYMENT_URL) {
       deploymentUrls.push(repoData.homepage);
-      
+
       // Detect deployment platform
       if (repoData.homepage.includes('vercel.app')) {
         vercelUrlCandidate = repoData.homepage;
@@ -220,38 +220,38 @@ export async function getRepoInfo(owner: string, repo: string, branch: string = 
         githubPagesCandidate = repoData.homepage;
       }
     }
-    
+
     // Check for GitHub Pages
     if (repoData.has_pages) {
       const pagesUrl = `https://${owner}.github.io/${repo}`;
-      if (pagesUrl !== PROBLEMATIC_DEPLOYMENT_URL) {
+      if (pagesUrl !== PROBLEPOL_DEPLOYMENT_URL) {
         if (!deploymentUrls.includes(pagesUrl)) {
           deploymentUrls.push(pagesUrl);
         }
         githubPagesCandidate = pagesUrl;
       }
     }
-    
+
     // Try to get package.json for additional deployment info
     try {
       const packageJson = await getFileContentAtCommit(owner, repo, commitSha, 'package.json');
       const packageData = JSON.parse(packageJson);
-      
+
       // Check for homepage in package.json
-      if (packageData.homepage && packageData.homepage !== PROBLEMATIC_DEPLOYMENT_URL && !deploymentUrls.includes(packageData.homepage)) {
+      if (packageData.homepage && packageData.homepage !== PROBLEPOL_DEPLOYMENT_URL && !deploymentUrls.includes(packageData.homepage)) {
         deploymentUrls.push(packageData.homepage);
       }
     } catch (error) {
       // package.json might not exist, that's okay
     }
-    
+
     // Try to get README for deployment URLs
     try {
       const readmeFiles = ['README.md', 'readme.md', 'README.txt', 'readme.txt'];
       for (const readmeFile of readmeFiles) {
         try {
           const readme = await getFileContentAtCommit(owner, repo, commitSha, readmeFile);
-          
+
           // Look for common deployment URL patterns
           const urlPatterns = [
             /https:\/\/[\w-]+\.vercel\.app/g,
@@ -259,14 +259,14 @@ export async function getRepoInfo(owner: string, repo: string, branch: string = 
             /https:\/\/[\w-]+\.github\.io/g,
             /https:\/\/[\w.-]+\.herokuapp\.com/g
           ];
-          
+
           urlPatterns.forEach(pattern => {
             const matches = readme.match(pattern);
             if (matches) {
               matches.forEach(url => {
-                if (url !== PROBLEMATIC_DEPLOYMENT_URL && !deploymentUrls.includes(url)) {
+                if (url !== PROBLEPOL_DEPLOYMENT_URL && !deploymentUrls.includes(url)) {
                   deploymentUrls.push(url);
-                  
+
                   if (url.includes('vercel.app') && !vercelUrlCandidate) {
                     vercelUrlCandidate = url;
                   } else if (url.includes('netlify.app') && !netlifyUrlCandidate) {
@@ -278,7 +278,7 @@ export async function getRepoInfo(owner: string, repo: string, branch: string = 
               });
             }
           });
-          
+
           break; // Found a README, stop looking
         } catch (error) {
           // This README file doesn't exist, try the next one
@@ -287,9 +287,9 @@ export async function getRepoInfo(owner: string, repo: string, branch: string = 
     } catch (error) {
       // No README found, that's okay
     }
-    
-    // Filter out the problematic URL from the final lists
-    const filteredDeploymentUrls = Array.from(new Set(deploymentUrls)).filter(url => url !== PROBLEMATIC_DEPLOYMENT_URL);
+
+    // Filter out the problePOL URL from the final lists
+    const filteredDeploymentUrls = Array.from(new Set(deploymentUrls)).filter(url => url !== PROBLEPOL_DEPLOYMENT_URL);
 
     return {
       owner,
@@ -297,13 +297,13 @@ export async function getRepoInfo(owner: string, repo: string, branch: string = 
       description: repoData.description || '',
       homepage: repoData.homepage,
       deploymentUrls: filteredDeploymentUrls,
-      vercelUrl: vercelUrlCandidate === PROBLEMATIC_DEPLOYMENT_URL ? undefined : vercelUrlCandidate,
-      netlifyUrl: netlifyUrlCandidate === PROBLEMATIC_DEPLOYMENT_URL ? undefined : netlifyUrlCandidate,
-      githubPages: githubPagesCandidate === PROBLEMATIC_DEPLOYMENT_URL ? undefined : githubPagesCandidate,
+      vercelUrl: vercelUrlCandidate === PROBLEPOL_DEPLOYMENT_URL ? undefined : vercelUrlCandidate,
+      netlifyUrl: netlifyUrlCandidate === PROBLEPOL_DEPLOYMENT_URL ? undefined : netlifyUrlCandidate,
+      githubPages: githubPagesCandidate === PROBLEPOL_DEPLOYMENT_URL ? undefined : githubPagesCandidate,
       lastCommit: commitSha,
       branch
     };
-    
+
   } catch (error) {
     throw new Error(`Failed to get repository info for ${owner}/${repo}: ${error}`);
   }

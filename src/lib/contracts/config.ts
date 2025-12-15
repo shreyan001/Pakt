@@ -32,8 +32,8 @@ export const NETWORKS: Record<string, NetworkConfig> = {
     rpcUrl: process.env.NEXT_PUBLIC_POLYGON_RPC_URL || 'https://rpc-amoy.polygon.technology/',
     blockExplorer: 'https://amoy.polygonscan.com/',
     nativeCurrency: {
-      name: 'MATIC',
-      symbol: 'MATIC',
+      name: 'POL',
+      symbol: 'POL',
       decimals: 18,
     },
   },
@@ -43,8 +43,8 @@ export const NETWORKS: Record<string, NetworkConfig> = {
     rpcUrl: process.env.NEXT_PUBLIC_POLYGON_RPC_URL || 'https://polygon-rpc.com/',
     blockExplorer: 'https://polygonscan.com/',
     nativeCurrency: {
-      name: 'MATIC',
-      symbol: 'MATIC',
+      name: 'POL',
+      symbol: 'POL',
       decimals: 18,
     },
   },
@@ -99,8 +99,8 @@ export const FEE_CONFIG = {
  * Currency conversion configuration
  */
 export const CURRENCY_CONFIG = {
-  DEFAULT_INR_TO_MATIC_RATE: 85.0, // Default exchange rate (1 MATIC = 85 INR)
-  DECIMALS: 18, // MATIC token decimals
+  DEFAULT_INR_TO_POL_RATE: 85.0, // Default exchange rate (1 POL = 85 INR)
+  DECIMALS: 18, // POL token decimals
   DISPLAY_DECIMALS: 4, // Decimals to show in UI
 } as const;
 

@@ -69,7 +69,7 @@ const stages = [
     description: "Funds and assets are auto-released; the INFT lifecycle continues for reuse or transfer.",
     icon: DollarSign,
     color: "from-[#3b82f6] to-[#4299e1]",
-    details: ["Automatic settlement", "Asset release", "Lifecycle management"]
+    details: ["AutoPOL settlement", "Asset release", "Lifecycle management"]
   }
 ];
 
