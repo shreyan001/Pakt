@@ -1,5 +1,7 @@
 # ⚡ Pakt — Programmable Trust for Agentic Collaboration
 
+> **📦 [Wave 4 Updates](./WAVE4_UPDATE.md)** — GitHub Verification • Time-Locked Escrow • DeFi Vault Integration
+
 ## Overview
 Pakt is a decentralized protocol and platform for programmable trust, agent-powered verification, and real-time payment splits. It enables collaborators to craft adaptable agreements, orchestrate AI agents that verify deliverables, and stream payouts instantly on Polygon. By combining portable reputation, composable contract schemas, and tokenized receivables, Pakt turns trust into a reusable primitive for global creative and freelance work.
 

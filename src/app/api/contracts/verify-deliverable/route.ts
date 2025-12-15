@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ethers } from 'ethers'
-import { Pakt_ABI } from '@/lib/contracts/pacterABI'
+import { Pakt_ABI } from '@/lib/contracts/paktABI'
 import { RedisService } from '@/lib/redisService'
-import download from 'download-git-repo'
+import simpleGit from 'simple-git'
 import fs from 'fs'
 import path from 'path'
 import { FilecoinStorageService } from '@/lib/filecoinStorageService'
@@ -119,22 +119,17 @@ async function downloadAndUploadToFilecoin(githubUrl: string, repoInfo: any) {
   try {
     console.log(`Downloading repository from ${githubUrl} to ${tempDir}...`)
 
-    // Extract owner and repo from githubUrl
-    const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/)
-    if (!match) {
-      throw new Error('Invalid GitHub URL format')
+    // Ensure the temp directory exists
+    if (!fs.existsSync(path.dirname(tempDir))) {
+      fs.mkdirSync(path.dirname(tempDir), { recursive: true })
     }
-    const [, owner, repo] = match
-    const repoSlug = `${owner}/${repo.replace('.git', '')}`
 
-    await new Promise<void>((resolve, reject) => {
-      download(repoSlug, tempDir, { clone: true }, (err: Error) => {
-        if (err) {
-          return reject(err)
-        }
-        resolve()
-      })
-    })
+    // Clean the GitHub URL (remove trailing .git if present)
+    const cleanGithubUrl = githubUrl.endsWith('.git') ? githubUrl : `${githubUrl}.git`
+
+    // Use simple-git to clone the repository
+    const git = simpleGit()
+    await git.clone(cleanGithubUrl, tempDir, ['--depth', '1'])
 
     console.log('Repository downloaded successfully. Uploading to Filecoin...')
 
