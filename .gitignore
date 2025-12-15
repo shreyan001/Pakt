@@ -37,6 +37,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 placeholder.ts
+placeholder.md
 
 # TRAE rules and placeholder files
 .trae/
