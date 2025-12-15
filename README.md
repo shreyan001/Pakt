@@ -66,6 +66,60 @@ Pakt is organized as four modular layers that work together to produce programma
 - **Identity & attestations:** Gitcoin Passport, Worldcoin, BrightID, Polygon ID, Ethereum Attestation Service.
 - **Storage & encryption:** IPFS, Arweave, Lit Protocol, NuCypher, Age.
 
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+### 🔐 Filebase IPFS Storage
+```bash
+FILEBASE_S3_KEY=your_filebase_access_key
+FILEBASE_S3_SECRET=your_filebase_secret_key
+FILEBASE_BUCKET_NAME=pakt-contracts
+FILEBASE_GATEWAY_URL=https://ipfs.filebase.io/ipfs
+FILEBASE_RPC_ENDPOINT=https://rpc.filebase.io
+```
+
+### 🗄️ Redis (Upstash)
+```bash
+UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url
+UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token
+```
+
+### 🗃️ Supabase Database
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+```
+
+### 🤖 AI Services
+```bash
+OPENAI_API_KEY=your_openai_api_key
+GROQ_API_KEY=your_groq_api_key
+```
+
+### 🔗 Blockchain / Web3
+```bash
+NEXT_PUBLIC_RPC_URL=https://rpc-amoy.polygon.technology/
+NEXT_PUBLIC_CHAIN_ID=80002
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+```
+
+### 🐙 GitHub Integration
+```bash
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+GITHUB_PAT=your_github_personal_access_token
+```
+
+### 🔑 NextAuth
+```bash
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret_key
+```
+
+> **💡 Note:** Never commit your `.env` file to version control. A `.env.example` template is provided for reference.
+
 ## What We Learned
 - **Flexible schema design** is essential to accommodate evolving collaborations, dynamic splits, and escrow logic without redeployments.
 - **Agent-mediated verification** combines objective checks with subjective scoring to unlock trust in creative deliverables.
@@ -79,10 +133,10 @@ Pakt is organized as four modular layers that work together to produce programma
 - **Fluid trust pods:** Enable teams to spin up ad-hoc pods with pooled reputation collateral and automated dispute insurance.
 
 ## Getting Started (Hackathon Sandbox)
-1. Clone the repo and install dependencies with `pnpm install`.
-2. Populate `.env` with WalletConnect Project ID, NextAuth secrets, and Polygon RPC keys.
+1. Clone the repo and install dependencies with `pnpm install` or `yarn install`.
+2. Copy `.env.example` to `.env` and populate with your API keys (see **Environment Variables** section above).
 3. Deploy agreement primitives to Polygon Amoy via Hardhat scripts in `contracts/`.
-4. Run `pnpm dev` to experiment with agent-assisted agreement creation and verification dashboards.
+4. Run `pnpm dev` or `yarn dev` to experiment with agent-assisted agreement creation and verification dashboards.
 5. Use the Polygon faucet to fund test wallets, then simulate milestone releases and Superfluid streams.
 
 ## Contributing

@@ -172,7 +172,7 @@ export interface CollectedContractData {
     escrowFee: number;
     totalEscrowAmount: number;
     currency: string;
-    zeroGEquivalent: number;
+    polEquivalent: number;
     feeBreakdown: {
       projectPayment: number;
       platformFee: number;

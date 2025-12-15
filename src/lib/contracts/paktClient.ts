@@ -14,7 +14,7 @@ import {
   formatEther,
   type TransactionReceipt,
 } from "viem";
-import { Pakt_ABI, OrderState } from "./pacterABI";
+import { Pakt_ABI, OrderState } from "./paktABI";
 import { getContractAddress, TX_CONFIG } from "./config";
 
 /**
@@ -24,7 +24,6 @@ export interface CreateOrderParams {
   orderHash: Hash; // Fetched from backend
   freelancerAddress: Address;
   escrowAmount: string; // in POL tokens (e.g., "1.5")
-  storageFee: string; // in POL tokens (e.g., "0.1")
   projectName: string;
 }
 
@@ -36,7 +35,6 @@ export interface Order {
   initiator: Address;
   freelancer: Address;
   escrowAmount: bigint;
-  storageFee: bigint;
   projectName: string;
   currentState: OrderState;
   createdTimestamp: bigint;
@@ -52,13 +50,11 @@ export interface FormattedOrder
   extends Omit<
     Order,
     | "escrowAmount"
-    | "storageFee"
     | "createdTimestamp"
     | "verifiedTimestamp"
     | "completedTimestamp"
   > {
   escrowAmount: string; // Formatted as string
-  storageFee: string;
   totalAmount: string;
   createdTimestamp: number;
   verifiedTimestamp: number;
@@ -84,7 +80,6 @@ export interface FormattedOrder
  *   orderHash: '0xabc...', // From backend API
  *   freelancerAddress: '0x123...',
  *   escrowAmount: '1.5',
- *   storageFee: '0.1',
  *   projectName: 'Web Development Project'
  * });
  * ```
@@ -98,7 +93,6 @@ export async function createAndDepositOrder(
       orderHash,
       freelancerAddress,
       escrowAmount,
-      storageFee,
       projectName,
     } = params;
 
@@ -120,17 +114,13 @@ export async function createAndDepositOrder(
       throw new Error("Project name is required");
     }
 
-    // Convert amounts to wei
+    // Convert amount to wei
     const escrowWei = parseEther(escrowAmount);
-    const storageWei = parseEther(storageFee);
-    const totalAmount = escrowWei + storageWei;
 
     console.log("Creating escrow order:", {
       orderHash,
       freelancerAddress,
       escrowAmount: escrowAmount + " POL",
-      storageFee: storageFee + " POL",
-      totalAmount: formatEther(totalAmount) + " POL",
       projectName,
     });
 
@@ -142,8 +132,8 @@ export async function createAndDepositOrder(
       address: contractAddress,
       abi: Pakt_ABI,
       functionName: "createAndDeposit",
-      args: [orderHash, freelancerAddress, escrowWei, storageWei, projectName],
-      value: totalAmount, // Send native POL tokens
+      args: [orderHash, freelancerAddress, escrowWei, projectName],
+      value: escrowWei, // Send native POL tokens
       account: walletClient.account,
       chain: undefined, // Use wallet's current chain
     });
@@ -204,7 +194,6 @@ export async function getOrderDetails(
       initiator: order.initiator,
       freelancer: order.freelancer,
       escrowAmount: order.escrowAmount,
-      storageFee: order.storageFee,
       projectName: order.projectName,
       currentState: order.currentState as OrderState,
       createdTimestamp: order.createdTimestamp,
@@ -241,13 +230,11 @@ export async function getFormattedOrderDetails(
   const order = await getOrderDetails(publicClient, orderHash);
 
   const escrowAmount = formatEther(order.escrowAmount);
-  const storageFee = formatEther(order.storageFee);
-  const totalAmount = formatEther(order.escrowAmount + order.storageFee);
+  const totalAmount = formatEther(order.escrowAmount);
 
   return {
     ...order,
     escrowAmount,
-    storageFee,
     totalAmount,
     createdTimestamp: Number(order.createdTimestamp),
     verifiedTimestamp: Number(order.verifiedTimestamp),

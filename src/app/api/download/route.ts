@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
     // Clean up the temporary file
     fs.unlinkSync(outputPath);
 
-    // Return the file as a response
-    return new NextResponse(fileBuffer, {
+    // Return the file as a response (convert Buffer to ArrayBuffer)
+    return new NextResponse(new Uint8Array(fileBuffer).buffer, {
       headers: {
         'Content-Type': 'application/octet-stream',
         'Content-Disposition': 'attachment; filename="project-files.zip"',

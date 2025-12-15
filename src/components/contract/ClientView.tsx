@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Wallet, CheckCircle2, AlertCircle, Loader2, ExternalLink, Download, Clock } from 'lucide-react'
 import { useWalletClient, usePublicClient, useAccount } from 'wagmi'
 import { type Hash } from 'viem'
-import { createAndDepositOrder, waitForTransaction, approvePayment } from '@/lib/contracts/pacterClient'
+import { createAndDepositOrder, waitForTransaction, approvePayment } from '@/lib/contracts/paktClient'
 import { generateOrderHash } from '@/lib/contracts/orderHash'
 import { getCurrentNetwork } from '@/lib/contracts/config'
 import {
@@ -194,7 +194,7 @@ function TimeLockedClientView({ contract, onContractUpdate }: TimeLockedProps) {
           <div className="flex justify-between">
             <span>Arbitration Contract</span>
             <a
-              href={`https://chainscan-galileo.POL.ai/address/${arbitrationAddress}`}
+              href={`https://amoy.polygonscan.com/address/${arbitrationAddress}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-indigo-300 hover:text-indigo-200"
@@ -205,7 +205,7 @@ function TimeLockedClientView({ contract, onContractUpdate }: TimeLockedProps) {
           <div className="flex justify-between">
             <span>Vault Address</span>
             <a
-              href={`https://chainscan-galileo.POL.ai/address/${vaultAddress}`}
+              href={`https://amoy.polygonscan.com/address/${vaultAddress}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-indigo-300 hover:text-indigo-200"
@@ -216,7 +216,7 @@ function TimeLockedClientView({ contract, onContractUpdate }: TimeLockedProps) {
           <div className="flex justify-between">
             <span>Escrow Contract</span>
             <a
-              href={`https://chainscan-galileo.POL.ai/address/${escrowAddress}`}
+              href={`https://amoy.polygonscan.com/address/${escrowAddress}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-indigo-300 hover:text-indigo-200"
@@ -407,9 +407,8 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
 
   // FOR TESTING: Use small amounts (0.1 POL for ₹1,00,000)
   // In production, use actual contract amounts
-  const escrowAmount = '0.09' // 0.09 POL for testing
-  const storageFee = '0.01' // 0.01 POL for testing
-  const totalAmount = '0.1' // Total 0.1 POL
+  const escrowAmount = '0.1' // 0.1 POL for testing
+  const totalAmount = '0.1' // Total 0.1 POL (same as escrowAmount)
   const inrAmount = '100000' // ₹1,00,000 for display
 
   // Get freelancer address
@@ -490,7 +489,6 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
         orderHash,
         freelancerAddress: freelancerAddress as `0x${string}`,
         escrowAmount: escrowAmount,
-        storageFee: storageFee,
         projectName: contract.name || 'Pakt Contract',
       })
 
@@ -631,10 +629,6 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">Project Payment</span>
                 <span className="text-white font-medium">{escrowAmount} POL</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Storage Fee</span>
-                <span className="text-white font-medium">{storageFee} POL</span>
               </div>
               <div className="border-t border-slate-700 pt-3 flex justify-between">
                 <span className="text-white font-semibold">Total Deposit</span>
@@ -1123,7 +1117,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
                       document.body.removeChild(a);
                     } catch (err: any) {
                       console.error('Download error:', err);
-                      setApprovalError('Failed to download from POL storage: ' + err.message);
+                      setApprovalError('Failed to download from filecoin storage: ' + err.message);
                     }
                   }}
                   className="w-full bg-indigo-600 hover:bg-indigo-700"

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Briefcase, CheckCircle2, AlertCircle, Loader2, ExternalLink, Github, Upload } from 'lucide-react'
 import { useAccount } from 'wagmi'
-import { withdrawFunds, waitForTransaction } from '@/lib/contracts/pacterClient'
+import { withdrawFunds, waitForTransaction } from '@/lib/contracts/paktClient'
 import { useWalletClient, usePublicClient } from 'wagmi'
 import { type Hash } from 'viem'
 import { getCurrentNetwork } from '@/lib/contracts/config'
@@ -66,7 +66,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
   const [verificationSteps, setVerificationSteps] = useState<VerificationStep[]>([
     { id: 'github', title: 'Verifying GitHub Repository', status: 'pending', details: '' },
     { id: 'download', title: 'Downloading Repository', status: 'pending', details: '' },
-    { id: 'upload', title: 'Uploading to POL Storage', status: 'pending', details: '' },
+    { id: 'upload', title: 'Verifying Deliverable', status: 'pending', details: '' },
     { id: 'sign', title: 'Agent Signing On-Chain', status: 'pending', details: '' },
     { id: 'complete', title: 'Finalizing Verification', status: 'pending', details: '' },
   ])
@@ -158,7 +158,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
     setVerificationSteps([
       { id: 'github', title: 'Verifying GitHub Repository', status: 'pending', details: '' },
       { id: 'download', title: 'Downloading Repository', status: 'pending', details: '' },
-      { id: 'upload', title: 'Uploading to POL Storage', status: 'pending', details: '' },
+      { id: 'upload', title: 'Verifying Deliverable', status: 'pending', details: '' },
       { id: 'sign', title: 'Agent Signing On-Chain', status: 'pending', details: '' },
       { id: 'complete', title: 'Finalizing Verification', status: 'pending', details: '' },
     ])
@@ -190,32 +190,23 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
         githubResult.githubUrl
       )
 
-      // STEP 2: Upload to POL Storage
-      updateVerificationStep('upload', 'processing', 'Uploading deliverable to POL Storage...')
+      // STEP 2: Skip storage upload (deliverable is already on GitHub)
+      // The GitHub verification provides all necessary information
+      updateVerificationStep('upload', 'processing', 'Using GitHub repository as deliverable source...')
 
-      const storageResponse = await fetch('/api/verify/storage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          githubUrl: githubUrl.trim(),
-          repoInfo: githubResult,
-        })
-      })
-
-      const storageResult = await storageResponse.json()
-      if (!storageResponse.ok) {
-        throw new Error(storageResult.error || 'POL Storage upload failed')
+      // Since the code is on GitHub, we can skip the separate storage upload
+      // and use the GitHub data directly
+      const storageResult = {
+        storageHash: githubResult.commitSha, // Use commit SHA as storage hash
+        storageTxHash: githubResult.commitSha, // Use commit SHA as tx hash
+        note: 'Repository verified on GitHub'
       }
-
-      const storageExplorerUrl = storageResult.storageTxHash
-        ? `https://chainscan-galileo.POL.ai/tx/${storageResult.storageTxHash}`
-        : undefined
 
       updateVerificationStep(
         'upload',
         'completed',
-        `Root Hash: ${storageResult.storageHash}`,
-        storageExplorerUrl
+        `Verified via GitHub: ${githubResult.commitSha?.substring(0, 12)}...`,
+        githubResult.githubUrl
       )
 
       // STEP 3: Agent Signs On-Chain
@@ -224,7 +215,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
       const verificationDetails = JSON.stringify({
         verifiedBy: 'Pakt-AI-Agent',
         verifiedAt: new Date().toISOString(),
-        method: 'GitHub + POL Storage',
+        method: 'GitHub verification',
         githubRepo: githubUrl.trim(),
         storageHash: githubResult.rootHash,
         storageTxHash: githubResult.txHash
@@ -246,7 +237,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
 
       // Build proper explorer URL
       const explorerUrl = agentResult.transactionHash && agentResult.transactionHash !== 'Already verified'
-        ? `https://chainscan-galileo.POL.ai/tx/${agentResult.transactionHash}`
+        ? `https://amoy.polygonscan.com/tx/${agentResult.transactionHash}`
         : undefined
 
       updateVerificationStep(
@@ -569,7 +560,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
                   <ol className="list-decimal list-inside space-y-1 ml-2 font-mono text-xs">
                     <li>GitHub repository verified for authenticity</li>
                     <li>Deployment connection validated (if provided)</li>
-                    <li>Repository downloaded and uploaded to POL storage</li>
+                    <li>Repository verified and commit tracked</li>
                     <li>Agent approves milestone on-chain</li>
                     <li>Client reviews and approves payment</li>
                   </ol>

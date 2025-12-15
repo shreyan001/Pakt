@@ -18,7 +18,7 @@ export const UserInputExtractionSchema = z.object({
         projectDescription: z.string().nullable().describe("Description of what needs to be built"),
         clientName: z.string().nullable().describe("Name of the client/company"),
         paymentAmount: z.number().nullable().describe("Payment amount in INR"),
-        walletAddress: z.string().nullable().describe("POL wallet address"),
+        // walletAddress removed - it comes from connected wallet only, not user input
         email: z.string().nullable().describe("Client email address"),
         timeline: z.string().nullable().describe("Project timeline"),
         deliverables: z.array(z.string()).nullable().describe("Project deliverables"),
@@ -97,7 +97,7 @@ type ProjectState = {
         escrowFee?: number, // Escrow service fee in INR
         totalEscrowAmount?: number, // Total amount in INR
         currency?: string, // Currency (INR)
-        zeroGEquivalent?: number, // Equivalent in POL tokens
+        polEquivalent?: number, // Equivalent in POL tokens
     },
     contractOptions?: {
         escrowType?: string,
@@ -111,9 +111,9 @@ type ProjectState = {
         uptimeSLA?: string,
     },
     dataReady?: boolean,
-    // POL Compute Integration
-    inferenceReady?: boolean, // Signal that data is ready for secure inference
-    collectedData?: any, // Complete collected data for inference
+    // Polygon Integration
+    inferenceReady?: boolean, // Signal that data is ready for secure processing
+    collectedData?: any, // Complete collected data
 }
 
 export default function nodegraph() {
@@ -142,7 +142,7 @@ export default function nodegraph() {
             contractOptions: { value: null },
             serviceMonitoring: { value: null },
             dataReady: { value: null },
-            // POL Compute Integration
+            // Polygon Integration
             inferenceReady: { value: null },
             collectedData: { value: null }
         }
@@ -173,7 +173,7 @@ Pakt is a **trustless escrow platform** that enables secure transactions between
 1. **Client deposits** payment into secure escrow (in INR, executed as POL tokens)
 2. **Freelancer builds** the project according to specifications
 3. **Automated verification** checks deliverables against requirements
-4. **Payment releases** autoPOLally when milestones are met
+4. **Payment releases** automatically when milestones are met
 5. **Dispute resolution** available if needed
 
 ## Classification Guidelines
@@ -184,43 +184,41 @@ Provide detailed, helpful information about Pakt, how it works, benefits, and en
 **For ESCROW INTEREST**: 
 If user wants to create an escrow, hire a freelancer, or start a project:
 1. Acknowledge their interest
-2. Explain that you'll collect the core project details plus vault, arbitration, or monitoring preferences when relevant
-3. Start by asking for the FIRST missing piece (usually project name)
-4. Be clear and specific about what you need
+2. If wallet is connected ({wallet_address}), acknowledge it with a checkmark
+3. Explain that you'll collect the core project details plus vault, arbitration, or monitoring preferences when relevant
+4. Start by asking for the FIRST missing piece (usually project name)
+5. Be clear and specific about what you need
 
 ## Example Responses:
 
-**Example 1 - User wants to create escrow:**
+**Example 1 - User wants to create escrow (with wallet):**
 User: "I want to hire a freelancer"
 You: "Great! I'll help you set up a secure escrow for your project.
+✅ Wallet Address: {wallet_address}
 
 Let's start with the basics. What would you like to call this project? (e.g., 'E-commerce Website', 'Mobile App Development') [INTENT:ESCROW]"
 
-**Example 2 - User says "I am a client":**
+**Example 2 - User says "I am a client" (with wallet):**
 User: "I am a client"
 You: "Perfect! I'll help you create an escrow for your project.
+✅ Wallet Address: {wallet_address}
 
 First, what's the project name? (e.g., 'Website Redesign', 'Mobile App') [INTENT:ESCROW]"
-
-**Example 2 - User says "I am a client":**
-User: "I am a client"
-You: "Perfect! I'll help you create a secure escrow for your project.
-
-Let's start with the project name. What would you like to call this project? (e.g., 'E-commerce Website', 'Mobile App Development') [INTENT:ESCROW]"
 
 **Example 3 - General question:**
 User: "What is Pakt?"
 You: "Pakt is a trustless escrow platform... [detailed explanation] [INTENT:GENERAL]"
 
 Current conversation stage: {stage}
+Connected Wallet: {wallet_address}
 
-**Response Style**: Be warm, professional, and comprehensive. For general questions, provide detailed explanations. For escrow interest, be clear about the information collection process.
+**Response Style**: Be warm, professional, and comprehensive. For general questions, provide detailed explanations. For escrow interest, be clear about the information collection process. ALWAYS acknowledge the connected wallet address with ✅ when starting escrow collection.
 
 Always end your response with one of these hidden classification tags:
 - [INTENT:ESCROW] - if user shows clear interest in creating escrow transactions
 - [INTENT:GENERAL] - for greetings, general conversation, or information requests
 
-**CRITICAL**: When starting escrow collection, immediately ask for the FIRST missing piece of information. Don't wait for the user to provide it voluntarily.`;
+**CRITICAL**: When starting escrow collection, immediately acknowledge the wallet address (if connected) and ask for the FIRST missing piece of information. Don't wait for the user to provide it voluntarily.`;
 
         const prompt = ChatPromptTemplate.fromMessages([
             ["system", INITIAL_SYSTEM_TEMPLATE],
@@ -231,7 +229,8 @@ Always end your response with one of these hidden classification tags:
         const response = await prompt.pipe(model).invoke({
             input: state.input,
             chat_history: state.chatHistory,
-            stage: state.stage || 'initial'
+            stage: state.stage || 'initial',
+            wallet_address: state.walletAddress || 'Not connected'
         });
 
         console.log(response.content, "Initial Node Response");
@@ -293,13 +292,14 @@ Always end your response with one of these hidden classification tags:
 3. **EXTRACT ONLY FROM USER INPUT** - Parse the current user message for information
 4. **NO DEFAULT VALUES** - Don't fill in missing information with placeholders or assumptions
 5. **VALIDATE BEFORE STORING** - Only store information that was actually provided by the user
+6. **NEVER EXTRACT WALLET ADDRESS** - Wallet addresses come from the connected wallet ONLY, not from user messages
 
 ## Required Information (Core Items):
 1. **Project Name** - Clear, descriptive title (e.g., "E-commerce Website", "Mobile App")
 2. **Project Description** - Detailed scope, what needs to be built (minimum 10 words)
 3. **Client Name** - Full name of the person/company hiring (e.g., "John Doe", "Acme Corp")
 4. **Email Address** - Valid email format (e.g., "john@example.com")
-5. **Wallet Address** - POL blockchain wallet (autoPOLally captured if connected)
+5. **Wallet Address** - POL blockchain wallet (automatically captured from connected wallet - DO NOT extract from messages)
 6. **Payment Amount** - Total project cost in INR (numbers only, e.g., "50000")
 
 ## Advanced Options (Collect after core items are complete):
@@ -314,7 +314,12 @@ Always end your response with one of these hidden classification tags:
 ## Internal Previously Collected Information (DO NOT SHOW TO USER):
 {collected_info}
 
+## Connected Wallet Information:
+Wallet Address: {wallet_address}
+
 **IMPORTANT**: The collection status and collected info above are for YOUR REFERENCE ONLY. DO NOT display this raw data to the user. Instead, acknowledge what they provided in a natural, conversational way.
+
+**WALLET ADDRESS NOTE**: The wallet address ({wallet_address}) is automatically captured from the user's connected wallet. You should NOT ask for it or mention it's missing if it shows as "Not connected" - the system handles this automatically.
 
 ## Collection Strategy:
 - **ACKNOWLEDGE FIRST**: If user provided information, acknowledge it specifically
@@ -322,6 +327,7 @@ Always end your response with one of these hidden classification tags:
 - **ASK FOR NEXT**: Request the NEXT missing field with clear examples
 - **BE SPECIFIC**: Give examples of what you're asking for
 - **NEVER REPEAT**: Don't ask for information that's already collected
+- **SKIP WALLET**: Never ask for wallet address - it's automatically captured
 
 ## Example Interactions:
 
@@ -365,12 +371,14 @@ Could you also share the API endpoint or SLA target so I can configure monitorin
 3. Ask for the NEXT missing field in a natural, conversational way with examples
 4. Be encouraging, professional, and friendly
 5. Keep responses concise and focused on ONE question at a time
+6. **NEVER mention wallet address as missing** - it's handled automatically
 
 End your response with:
 - [CONTINUE_INFO] - if more information is needed
 - [READY_FOR_DATA] - if all 6 items are collected
 
-Current stage: {stage}`;
+Current stage: {stage}
+Connected Wallet: {wallet_address}`;
 
         const prompt = ChatPromptTemplate.fromMessages([
             ["system", COLLECTION_SYSTEM_TEMPLATE],
@@ -395,7 +403,8 @@ Current stage: {stage}`;
             chat_history: state.chatHistory,
             stage: state.stage || 'information_collection',
             collected_info: JSON.stringify(collectedInfo, null, 2),
-            collection_status: collectionStatus
+            collection_status: collectionStatus,
+            wallet_address: state.walletAddress || 'Not connected'
         });
 
         console.log(response.content, "Collection Node Response");
@@ -439,12 +448,13 @@ Current stage: {stage}`;
                 }
 
                 // Update client info - preserve existing data
-                if (extracted.clientName || extracted.email || extracted.walletAddress) {
+                // IMPORTANT: Do NOT use extracted.walletAddress - it comes from connected wallet only
+                if (extracted.clientName || extracted.email) {
                     updatedState.clientInfo = {
                         ...updatedState.clientInfo,
                         ...(extracted.clientName && { clientName: extracted.clientName }),
-                        ...(extracted.email && { email: extracted.email }),
-                        ...(extracted.walletAddress && { walletAddress: extracted.walletAddress })
+                        ...(extracted.email && { email: extracted.email })
+                        // walletAddress is handled separately from state.walletAddress (see line 488)
                     };
                 }
 
@@ -592,7 +602,7 @@ Current stage: {stage}`;
 - Platform Fee (2.5%): ₹{platform_fee} INR
 - Escrow Fee (0.5%): ₹{escrow_fee} INR
 - Total Escrow Amount: ₹{total_amount} INR
-- POL Token Equivalent: {zeroG_equivalent} POL
+- POL Token Equivalent: {pol_equivalent} POL
 
 ## Your Task:
 Provide a professional summary that:
@@ -657,7 +667,7 @@ Always end with: [DATA_COMPLETE]`;
         const platformFee = Math.round((paymentAmount * 0.025) * 100) / 100; // 2.5%
         const escrowFee = Math.round((paymentAmount * 0.005) * 100) / 100; // 0.5%
         const totalAmount = paymentAmount + platformFee + escrowFee;
-        const zeroGEquivalent = Math.round((totalAmount * 0.1) * 100) / 100; // Mock rate
+        const polEquivalent = Math.round((totalAmount * 0.1) * 100) / 100; // Mock rate: 1 POL ≈ ₹10
 
         const response = await prompt.pipe(model).invoke({
             chat_history: state.chatHistory,
@@ -679,7 +689,7 @@ Always end with: [DATA_COMPLETE]`;
             platform_fee: platformFee.toFixed(2),
             escrow_fee: escrowFee.toFixed(2),
             total_amount: totalAmount.toFixed(2),
-            zeroG_equivalent: zeroGEquivalent.toFixed(2)
+            pol_equivalent: polEquivalent.toFixed(2)
         });
 
         console.log(response.content, "Final Data Node Response");
@@ -703,7 +713,7 @@ Always end with: [DATA_COMPLETE]`;
                 escrowFee: escrowFee,
                 totalEscrowAmount: totalAmount,
                 currency: "INR",
-                zeroGEquivalent: zeroGEquivalent,
+                polEquivalent: polEquivalent,
                 feeBreakdown: {
                     projectPayment: paymentAmount,
                     platformFee: platformFee,
@@ -773,7 +783,7 @@ Thank you for providing all the details. Your contract is now being prepared.
 
 **What's happening next:**
 • Generating legal contract with Indian law compliance
-• Processing with secure POL Compute Network
+• Processing with secure Polygon blockchain
 • Preparing escrow smart contract
 • Setting up arbitration and monitoring hooks
 
@@ -784,7 +794,7 @@ Please wait while we create your secure contract...`;
 
         console.log("=== FINAL DATA READY ===");
         console.log("JSON Output:", JSON.stringify(finalProjectData, null, 2));
-        console.log("🚀 INFERENCE READY - Triggering POL Compute");
+        console.log("🚀 INFERENCE READY - Processing on Polygon");
 
         return {
             result: finalResponse,

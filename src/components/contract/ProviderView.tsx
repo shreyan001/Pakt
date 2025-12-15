@@ -204,7 +204,7 @@ export default function ProviderView({ contract, onContractUpdate }: ProviderVie
             <div className="flex justify-between">
               <span>Escrow Contract</span>
               <a
-                href={`https://chainscan-galileo.POL.ai/address/${escrowAddress}`}
+                href={`https://amoy.polygonscan.com/address/${escrowAddress}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-indigo-300 hover:text-indigo-200"
@@ -215,7 +215,7 @@ export default function ProviderView({ contract, onContractUpdate }: ProviderVie
             <div className="flex justify-between">
               <span>Vault Address</span>
               <a
-                href={`https://chainscan-galileo.POL.ai/address/${vaultAddress}`}
+                href={`https://amoy.polygonscan.com/address/${vaultAddress}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-indigo-300 hover:text-indigo-200"

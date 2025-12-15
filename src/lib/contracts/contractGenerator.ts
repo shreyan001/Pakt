@@ -66,7 +66,7 @@ ${data.projectInfo.deliverables.map((d, i) => `   ${i + 1}. ${d}`).join('\n')}
 
 2.3 Payment Method: The payment shall be held in escrow using POL blockchain technology and released upon successful completion and verification of deliverables.
 
-2.4 POL Token Equivalent: ${data.financialInfo.zeroGEquivalent} POL tokens (for blockchain execution)
+2.4 POL Token Equivalent: ${data.financialInfo.polEquivalent} POL tokens (for blockchain execution)
 
 3. ESCROW TERMS
 

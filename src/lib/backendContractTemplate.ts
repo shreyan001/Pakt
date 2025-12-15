@@ -78,15 +78,15 @@ export const backendContractTemplate = {
         fees: {
           platformFee: {
             inr: "6250",
-            zeroG: "74"
+            pol: "74"
           },
           storageFee: {
             inr: "1250",
-            zeroG: "15"
+            pol: "15"
           },
           totalFees: {
             inr: "7500",
-            zeroG: "89"
+            pol: "89"
           }
         }
       },
@@ -136,7 +136,7 @@ export const backendContractTemplate = {
       },
       financialInfo: {
         basePaymentInInr: "250000",
-        basePaymentInZeroG: "2941",
+        basePaymentInPOL: "2941",
         escrowYieldRate: "1%",
         computedYieldShare: {
           client: "90%",

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ethers } from 'ethers'
-import { Pakt_ABI } from '@/lib/contracts/pacterABI'
+import { Pakt_ABI } from '@/lib/contracts/paktABI'
 
 // GitHub verification functions
 async function verifyGitHubDeployment(githubUrl: string, deploymentUrl?: string) {
@@ -82,7 +82,7 @@ async function storeRepositoryMetadata(githubUrl: string, repoInfo: any) {
       verificationAgent: 'Pakt-AI-Agent'
     }
 
-    // In production, this would upload to POL storage
+    // In production, this would upload to filecoin storage
     // For now, we'll simulate with a hash
     const metadataString = JSON.stringify(metadata)
     const hash = ethers.keccak256(ethers.toUtf8Bytes(metadataString))

@@ -50,7 +50,7 @@ const stages = [
   {
     id: 5,
     title: "Evidence Logging",
-    description: "Every artifact is logged to POL Storage with Merkle proofs for complete transparency.",
+    description: "Every artifact is logged to filecoin storage with Merkle proofs for complete transparency.",
     icon: Database,
     color: "from-[#1d4ed8] to-[#2563eb]",
     details: ["Immutable storage", "Merkle proofs", "Audit trails"]

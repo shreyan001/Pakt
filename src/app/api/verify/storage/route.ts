@@ -1,4 +1,4 @@
-// Step 2: Filecoin/IPFS Storage Upload
+// Step 2: Filebase IPFS Storage Upload
 import { NextRequest, NextResponse } from 'next/server'
 import { FilecoinStorageService } from '@/lib/filecoinStorageService'
 import * as fs from 'fs'
@@ -7,7 +7,7 @@ import * as os from 'os'
 
 async function uploadCodeToFilecoin(codeContent: string, metadata: any) {
   try {
-    console.log('📤 Starting Filecoin/IPFS storage upload for code content...')
+    console.log('📤 Starting Filebase IPFS storage upload for code content...')
 
     // Create temporary directory for code files
     const tempDir = path.join(os.tmpdir(), `Pakt_upload_${Date.now()}`)
@@ -28,7 +28,7 @@ async function uploadCodeToFilecoin(codeContent: string, metadata: any) {
       const storageService = new FilecoinStorageService()
 
       if (!storageService.isConfigured()) {
-        console.warn('⚠️ Filecoin storage not configured, returning mock result')
+        console.warn('⚠️ Filebase storage not configured, returning mock result')
         fs.rmSync(tempDir, { recursive: true, force: true })
         return {
           success: true,
@@ -38,7 +38,7 @@ async function uploadCodeToFilecoin(codeContent: string, metadata: any) {
         }
       }
 
-      console.log('🔗 Connected to Filecoin/IPFS storage')
+      console.log('🔗 Connected to Filebase IPFS storage')
 
       // Upload folder to Filecoin Storage
       const uploadResult = await storageService.uploadFolder(tempDir)

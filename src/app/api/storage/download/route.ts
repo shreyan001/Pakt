@@ -1,4 +1,4 @@
-// Download files from Filecoin/IPFS Storage
+// Download files from Filebase IPFS Storage
 import { NextRequest, NextResponse } from 'next/server'
 import { FilecoinStorageService } from '@/lib/filecoinStorageService'
 import * as fs from 'fs'
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('📥 Downloading from Filecoin/IPFS:', cid)
+    console.log('📥 Downloading from Filebase IPFS:', cid)
 
     // Initialize Filecoin Storage Service
     const storageService = new FilecoinStorageService()

@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
 /**
- * PaktEscrowV2 Contract ABI and Type Definitions
+ * PaktV1 Contract ABI and Type Definitions
  * 
- * This file contains the complete ABI for the PaktEscrowV2 smart contract
- * deployed on the POL blockchain, along with TypeScript type definitions.
+ * This file contains the complete ABI for the PaktV1 smart contract
+ * deployed on the Polygon blockchain, along with TypeScript type definitions.
  */
 
 export const Pakt_ABI = [
   {
     type: 'constructor',
     inputs: [
-      { name: '_zeroGServiceWallet', type: 'address', internalType: 'address' },
       { name: '_verificationAgent', type: 'address', internalType: 'address' },
     ],
     stateMutability: 'nonpayable',
@@ -22,7 +21,6 @@ export const Pakt_ABI = [
       { name: 'orderHash', type: 'bytes32', internalType: 'bytes32' },
       { name: 'freelancer', type: 'address', internalType: 'address payable' },
       { name: 'escrowAmount', type: 'uint256', internalType: 'uint256' },
-      { name: 'storageFee', type: 'uint256', internalType: 'uint256' },
       { name: 'projectName', type: 'string', internalType: 'string' },
     ],
     outputs: [],
@@ -61,15 +59,14 @@ export const Pakt_ABI = [
       {
         name: '',
         type: 'tuple',
-        internalType: 'struct PaktEscrowV2.Order',
+        internalType: 'struct PaktV1.Order',
         components: [
           { name: 'orderHash', type: 'bytes32', internalType: 'bytes32' },
           { name: 'initiator', type: 'address', internalType: 'address' },
           { name: 'freelancer', type: 'address', internalType: 'address payable' },
           { name: 'escrowAmount', type: 'uint256', internalType: 'uint256' },
-          { name: 'storageFee', type: 'uint256', internalType: 'uint256' },
           { name: 'projectName', type: 'string', internalType: 'string' },
-          { name: 'currentState', type: 'uint8', internalType: 'enum PaktEscrowV2.OrderState' },
+          { name: 'currentState', type: 'uint8', internalType: 'enum PaktV1.OrderState' },
           { name: 'createdTimestamp', type: 'uint256', internalType: 'uint256' },
           { name: 'verifiedTimestamp', type: 'uint256', internalType: 'uint256' },
           { name: 'completedTimestamp', type: 'uint256', internalType: 'uint256' },
@@ -109,29 +106,8 @@ export const Pakt_ABI = [
   },
   {
     type: 'function',
-    name: 'zeroGServiceWallet',
-    inputs: [],
-    outputs: [{ name: '', type: 'address', internalType: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'updateVerificationAgent',
     inputs: [{ name: 'newAgent', type: 'address', internalType: 'address' }],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'updateServiceWallet',
-    inputs: [{ name: 'newWallet', type: 'address', internalType: 'address' }],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'transferPOLStorageFees',
-    inputs: [{ name: 'amount', type: 'uint256', internalType: 'uint256' }],
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -190,19 +166,10 @@ export const Pakt_ABI = [
   },
   {
     type: 'event',
-    name: 'FeesTransferred',
-    inputs: [
-      { name: 'serviceWallet', type: 'address', indexed: false, internalType: 'address' },
-      { name: 'totalFees', type: 'uint256', indexed: false, internalType: 'uint256' },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
     name: 'OrderStateChanged',
     inputs: [
       { name: 'orderHash', type: 'bytes32', indexed: true, internalType: 'bytes32' },
-      { name: 'newState', type: 'uint8', indexed: false, internalType: 'enum PaktEscrowV2.OrderState' },
+      { name: 'newState', type: 'uint8', indexed: false, internalType: 'enum PaktV1.OrderState' },
     ],
     anonymous: false,
   },

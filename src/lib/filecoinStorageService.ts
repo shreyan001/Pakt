@@ -1,13 +1,12 @@
-'use server';
+import { ObjectManager, BucketManager } from '@filebase/sdk';
 import * as fs from 'fs';
 import * as path from 'path';
-import archiver from 'archiver';
 
 /**
- * Filecoin Storage Service using web3.storage
+ * Filebase IPFS Storage Service
  * 
- * This service provides decentralized storage functionality on Filecoin/IPFS
- * via the web3.storage gateway.
+ * This service provides decentralized storage functionality on IPFS
+ * via Filebase's S3-compatible API with native folder upload support.
  */
 
 export interface UploadResult {
@@ -37,39 +36,85 @@ export interface FileInfo {
 }
 
 /**
- * FilecoinStorageService
+ * FilecoinStorageService (now using Filebase)
  * 
- * Provides upload/download functionality using web3.storage (Filecoin + IPFS)
+ * Provides upload/download functionality using Filebase IPFS pinning
  * 
  * Environment variables required:
- * - WEB3_STORAGE_TOKEN: API token from https://web3.storage
+ * - FILEBASE_S3_KEY: S3 access key from Filebase
+ * - FILEBASE_S3_SECRET: S3 secret key from Filebase
+ * - FILEBASE_BUCKET_NAME: Your Filebase bucket name
+ * - FILEBASE_GATEWAY_URL: IPFS gateway URL (optional)
  */
 export class FilecoinStorageService {
-    private token: string;
+    private s3Key: string;
+    private s3Secret: string;
+    private bucketName: string;
     private gatewayUrl: string;
+    private objectManager: ObjectManager | null = null;
+    private bucketManager: BucketManager | null = null;
 
     constructor() {
-        const token = process.env.WEB3_STORAGE_TOKEN;
-        if (!token) {
-            console.warn('WEB3_STORAGE_TOKEN not set - storage features will be disabled');
+        this.s3Key = process.env.FILEBASE_S3_KEY || '';
+        this.s3Secret = process.env.FILEBASE_S3_SECRET || '';
+        this.bucketName = process.env.FILEBASE_BUCKET_NAME || 'pakt-contracts';
+        this.gatewayUrl = process.env.FILEBASE_GATEWAY_URL || 'https://ipfs.filebase.io/ipfs';
+
+        if (!this.s3Key || !this.s3Secret) {
+            console.warn('Filebase credentials not set - storage features will be disabled');
+        } else {
+            try {
+                this.bucketManager = new BucketManager(this.s3Key, this.s3Secret);
+                this.objectManager = new ObjectManager(this.s3Key, this.s3Secret, {
+                    bucket: this.bucketName
+                });
+            } catch (error) {
+                console.error('Failed to initialize Filebase managers:', error);
+            }
         }
-        this.token = token || '';
-        this.gatewayUrl = process.env.FILECOIN_GATEWAY_URL || 'https://w3s.link/ipfs';
     }
 
     /**
      * Check if the service is properly configured
      */
     isConfigured(): boolean {
-        return !!this.token;
+        return !!(this.s3Key && this.s3Secret && this.objectManager);
     }
 
     /**
-     * Upload a file to Filecoin/IPFS via web3.storage
+     * Ensure bucket exists, create if it doesn't
+     */
+    private async ensureBucket(): Promise<void> {
+        if (!this.bucketManager) {
+            throw new Error('BucketManager not initialized');
+        }
+
+        try {
+            // Try to list buckets to check if our bucket exists
+            const buckets = await this.bucketManager.list();
+            const bucketExists = buckets.some((b: any) => b.Name === this.bucketName);
+
+            if (!bucketExists) {
+                console.log(`Creating bucket: ${this.bucketName}`);
+                await this.bucketManager.create(this.bucketName);
+            }
+        } catch (error) {
+            // If listing fails, try to create anyway (it will fail gracefully if exists)
+            try {
+                await this.bucketManager.create(this.bucketName);
+            } catch (createError) {
+                // Bucket might already exist, continue
+                console.log('Bucket creation skipped (may already exist)');
+            }
+        }
+    }
+
+    /**
+     * Upload a file to IPFS via Filebase
      */
     async uploadFile(filePath: string): Promise<UploadResult> {
         if (!this.isConfigured()) {
-            return { success: false, error: 'Storage service not configured - missing WEB3_STORAGE_TOKEN' };
+            return { success: false, error: 'Storage service not configured - missing Filebase credentials' };
         }
 
         try {
@@ -78,35 +123,25 @@ export class FilecoinStorageService {
                 return { success: false, error: `File not found: ${filePath}` };
             }
 
+            await this.ensureBucket();
+
             const fileContent = fs.readFileSync(filePath);
             const fileName = path.basename(filePath);
 
-            // Create form data for upload
-            const formData = new FormData();
-            const blob = new Blob([new Uint8Array(fileContent)]);
-            formData.append('file', blob, fileName);
+            // Upload to Filebase - the SDK expects Buffer or string
+            const uploadedObject: any = await this.objectManager!.upload(fileName, fileContent, {}, {});
 
-            // Upload to web3.storage
-            const response = await fetch('https://api.web3.storage/upload', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`,
-                },
-                body: formData,
-            });
+            // The uploadedObject should have a cid property
+            const cid = uploadedObject.cid || uploadedObject.CID || uploadedObject;
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                return { success: false, error: `Upload failed: ${errorText}` };
+            if (!cid) {
+                throw new Error('Upload succeeded but no CID returned');
             }
-
-            const result = await response.json();
-            const cid = result.cid;
 
             return {
                 success: true,
-                cid,
-                url: `${this.gatewayUrl}/${cid}`,
+                cid: typeof cid === 'string' ? cid : cid.toString(),
+                url: `${this.gatewayUrl}/${typeof cid === 'string' ? cid : cid.toString()}`,
             };
         } catch (error) {
             console.error('Upload error:', error);
@@ -115,11 +150,12 @@ export class FilecoinStorageService {
     }
 
     /**
-     * Upload a folder to Filecoin/IPFS by first archiving it
+     * Upload a folder to IPFS via Filebase
+     * Filebase supports native folder uploads without zipping
      */
     async uploadFolder(folderPath: string): Promise<FolderUploadResult> {
         if (!this.isConfigured()) {
-            return { success: false, error: 'Storage service not configured - missing WEB3_STORAGE_TOKEN' };
+            return { success: false, error: 'Storage service not configured - missing Filebase credentials' };
         }
 
         try {
@@ -128,31 +164,61 @@ export class FilecoinStorageService {
                 return { success: false, error: `Folder not found: ${folderPath}` };
             }
 
-            // Create a temporary zip file
-            const tempZipPath = path.join(process.cwd(), 'temp', `upload_${Date.now()}.zip`);
+            await this.ensureBucket();
 
-            // Ensure temp directory exists
-            const tempDir = path.dirname(tempZipPath);
-            if (!fs.existsSync(tempDir)) {
-                fs.mkdirSync(tempDir, { recursive: true });
+            // Read all files in the folder recursively
+            const files = this.getAllFiles(folderPath);
+
+            if (files.length === 0) {
+                return { success: false, error: 'No files found in folder' };
             }
 
-            // Create zip archive
-            await this.createZipArchive(folderPath, tempZipPath);
+            // Create a unique folder name based on timestamp
+            const folderName = `folder_${Date.now()}`;
 
-            // Upload the zip file
-            const uploadResult = await this.uploadFile(tempZipPath);
+            // Upload each file with folder structure preserved
+            let lastCid = '';
+            for (const file of files) {
+                const relativePath = path.relative(folderPath, file);
+                const objectKey = `${folderName}/${relativePath.replace(/\\/g, '/')}`;
+                const fileContent = fs.readFileSync(file);
 
-            // Clean up temp file
-            if (fs.existsSync(tempZipPath)) {
-                fs.unlinkSync(tempZipPath);
+                const uploadedObject: any = await this.objectManager!.upload(objectKey, fileContent, {}, {});
+
+                // Extract CID from response
+                const cid = uploadedObject.cid || uploadedObject.CID || uploadedObject;
+                lastCid = typeof cid === 'string' ? cid : cid.toString();
             }
 
-            return uploadResult;
+            // The CID of the folder will be from the last upload
+            // In practice, you might want to track the root folder CID differently
+            return {
+                success: true,
+                cid: lastCid,
+                url: `${this.gatewayUrl}/${lastCid}`,
+            };
         } catch (error) {
             console.error('Folder upload error:', error);
             return { success: false, error: `Folder upload failed: ${error}` };
         }
+    }
+
+    /**
+     * Recursively get all files in a directory
+     */
+    private getAllFiles(dirPath: string, arrayOfFiles: string[] = []): string[] {
+        const files = fs.readdirSync(dirPath);
+
+        files.forEach((file) => {
+            const filePath = path.join(dirPath, file);
+            if (fs.statSync(filePath).isDirectory()) {
+                arrayOfFiles = this.getAllFiles(filePath, arrayOfFiles);
+            } else {
+                arrayOfFiles.push(filePath);
+            }
+        });
+
+        return arrayOfFiles;
     }
 
     /**
@@ -190,23 +256,6 @@ export class FilecoinStorageService {
      */
     getGatewayUrl(cid: string): string {
         return `${this.gatewayUrl}/${cid}`;
-    }
-
-    /**
-     * Create a zip archive from a folder
-     */
-    private createZipArchive(folderPath: string, outputPath: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const output = fs.createWriteStream(outputPath);
-            const archive = archiver('zip', { zlib: { level: 9 } });
-
-            output.on('close', () => resolve());
-            archive.on('error', (err) => reject(err));
-
-            archive.pipe(output);
-            archive.directory(folderPath, false);
-            archive.finalize();
-        });
     }
 }
 

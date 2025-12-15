@@ -1,7 +1,7 @@
 // Step 3: Agent On-Chain Signing
 import { NextRequest, NextResponse } from 'next/server'
 import { ethers } from 'ethers'
-import { Pakt_ABI } from '@/lib/contracts/pacterABI'
+import { Pakt_ABI } from '@/lib/contracts/paktABI'
 
 async function agentSignVerification(orderHash: string, verificationDetails: string) {
   try {

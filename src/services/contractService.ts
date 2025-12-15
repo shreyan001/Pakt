@@ -159,7 +159,7 @@ function prepareBackendData(
           exchangeRate: '1.00'
         },
         'POL': {
-          totalAmount: collectedData.financialInfo.zeroGEquivalent.toString(),
+          totalAmount: collectedData.financialInfo.polEquivalent.toString(),
           currency: 'POL',
           network: 'polygon-amoy-testnet'
         }
