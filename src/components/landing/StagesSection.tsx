@@ -3,15 +3,15 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  MessageSquare, 
-  FileText, 
-  Cpu, 
-  Settings, 
-  Database, 
-  CheckCircle, 
+import {
+  MessageSquare,
+  FileText,
+  Cpu,
+  Settings,
+  Database,
+  CheckCircle,
   DollarSign,
-  ArrowRight 
+  ArrowRight
 } from 'lucide-react';
 
 const stages = [
@@ -50,7 +50,7 @@ const stages = [
   {
     id: 5,
     title: "Evidence Logging",
-    description: "Every artifact is logged to 0G Storage with Merkle proofs for complete transparency.",
+    description: "Every artifact is logged to POL Storage with Merkle proofs for complete transparency.",
     icon: Database,
     color: "from-[#1d4ed8] to-[#2563eb]",
     details: ["Immutable storage", "Merkle proofs", "Audit trails"]
@@ -58,7 +58,7 @@ const stages = [
   {
     id: 6,
     title: "Verification & Enforcement",
-    description: "AI agent validates evidence and enforces logic—all TEE-verifiable via 0G Compute.",
+    description: "AI agent validates evidence and enforces logic—all TEE-verifiable via POL Compute.",
     icon: CheckCircle,
     color: "from-[#2563eb] to-[#3b82f6]",
     details: ["Automated validation", "TEE verification", "Smart enforcement"]
@@ -96,7 +96,7 @@ export default function StagesSection() {
             {stages.map((stage, index) => {
               const Icon = stage.icon;
               const isEven = index % 2 === 0;
-              
+
               return (
                 <div key={stage.id} className={`flex items-center ${isEven ? 'flex-row' : 'flex-row-reverse'} gap-8`}>
                   {/* Stage Card */}

@@ -18,7 +18,7 @@ export const UserInputExtractionSchema = z.object({
         projectDescription: z.string().nullable().describe("Description of what needs to be built"),
         clientName: z.string().nullable().describe("Name of the client/company"),
         paymentAmount: z.number().nullable().describe("Payment amount in INR"),
-        walletAddress: z.string().nullable().describe("0G wallet address"),
+        walletAddress: z.string().nullable().describe("POL wallet address"),
         email: z.string().nullable().describe("Client email address"),
         timeline: z.string().nullable().describe("Project timeline"),
         deliverables: z.array(z.string()).nullable().describe("Project deliverables"),
@@ -97,7 +97,7 @@ type ProjectState = {
         escrowFee?: number, // Escrow service fee in INR
         totalEscrowAmount?: number, // Total amount in INR
         currency?: string, // Currency (INR)
-        zeroGEquivalent?: number, // Equivalent in 0G tokens
+        zeroGEquivalent?: number, // Equivalent in POL tokens
     },
     contractOptions?: {
         escrowType?: string,
@@ -111,7 +111,7 @@ type ProjectState = {
         uptimeSLA?: string,
     },
     dataReady?: boolean,
-    // 0G Compute Integration
+    // POL Compute Integration
     inferenceReady?: boolean, // Signal that data is ready for secure inference
     collectedData?: any, // Complete collected data for inference
 }
@@ -142,7 +142,7 @@ export default function nodegraph() {
             contractOptions: { value: null },
             serviceMonitoring: { value: null },
             dataReady: { value: null },
-            // 0G Compute Integration
+            // POL Compute Integration
             inferenceReady: { value: null },
             collectedData: { value: null }
         }
@@ -155,9 +155,9 @@ export default function nodegraph() {
 ## About Pakt
 Pakt is a **trustless escrow platform** that enables secure transactions between clients and freelancers for project development. Built on:
 
-🔗 **Secure Escrow System** - Protected payment holding using 0G blockchain
+🔗 **Secure Escrow System** - Protected payment holding using POL blockchain
 ⚡ **Smart Contract Integration** - Automated contract execution  
-💰 **INR payments with 0G tokens** - All payments collected in INR and executed using 0G token equivalents
+💰 **INR payments with POL tokens** - All payments collected in INR and executed using POL token equivalents
 🤖 **Automated verification** - Payment release system
 🛡️ **Dual Protection** - Guards against non-payment AND non-delivery
 
@@ -170,7 +170,7 @@ Pakt is a **trustless escrow platform** that enables secure transactions between
 🌐 **Project Types** - Websites, mobile apps, software development, design work, etc.
 
 ## How It Works
-1. **Client deposits** payment into secure escrow (in INR, executed as 0G tokens)
+1. **Client deposits** payment into secure escrow (in INR, executed as POL tokens)
 2. **Freelancer builds** the project according to specifications
 3. **Automated verification** checks deliverables against requirements
 4. **Payment releases** automatically when milestones are met
@@ -228,8 +228,8 @@ Always end your response with one of these hidden classification tags:
             ["human", "{input}"]
         ]);
 
-        const response = await prompt.pipe(model).invoke({ 
-            input: state.input, 
+        const response = await prompt.pipe(model).invoke({
+            input: state.input,
             chat_history: state.chatHistory,
             stage: state.stage || 'initial'
         });
@@ -237,13 +237,13 @@ Always end your response with one of these hidden classification tags:
         console.log(response.content, "Initial Node Response");
 
         const content = response.content as string;
-        
+
         // Extract the intent classification from the response
         let operation = "end";  // Default to end
         let nextStage = 'initial';
         let progress = 0;
         let stageIndex = 0;
-        
+
         if (content.includes("[INTENT:ESCROW]")) {
             operation = "collect_initiator_info";
             nextStage = 'information_collection';
@@ -254,9 +254,9 @@ Always end your response with one of these hidden classification tags:
         // Clean the response by removing the intent tag before returning to user
         const cleanedContent = content.replace(/\[INTENT:(ESCROW|GENERAL)\]/g, '').trim();
 
-        return { 
+        return {
             result: cleanedContent,
-            messages: [cleanedContent], 
+            messages: [cleanedContent],
             operation: operation,
             stage: nextStage,
             information_collection: operation === "collect_initiator_info",
@@ -299,7 +299,7 @@ Always end your response with one of these hidden classification tags:
 2. **Project Description** - Detailed scope, what needs to be built (minimum 10 words)
 3. **Client Name** - Full name of the person/company hiring (e.g., "John Doe", "Acme Corp")
 4. **Email Address** - Valid email format (e.g., "john@example.com")
-5. **Wallet Address** - 0G blockchain wallet (automatically captured if connected)
+5. **Wallet Address** - POL blockchain wallet (automatically captured if connected)
 6. **Payment Amount** - Total project cost in INR (numbers only, e.g., "50000")
 
 ## Advanced Options (Collect after core items are complete):
@@ -386,12 +386,12 @@ Current stage: {stage}`;
         };
 
         // Prepare collection status
-        const collectionStatus = Object.entries(state.collectedFields || {}).map(([field, collected]) => 
+        const collectionStatus = Object.entries(state.collectedFields || {}).map(([field, collected]) =>
             `- ${field}: ${collected ? '✅ Collected' : '❌ Missing'}`
         ).join('\n');
 
-        const response = await prompt.pipe(model).invoke({ 
-            input: state.input, 
+        const response = await prompt.pipe(model).invoke({
+            input: state.input,
             chat_history: state.chatHistory,
             stage: state.stage || 'information_collection',
             collected_info: JSON.stringify(collectedInfo, null, 2),
@@ -403,33 +403,33 @@ Current stage: {stage}`;
         // Use structured extraction to capture information
         let extractedData = {};
         const updatedState = { ...state };
-        
+
         // Initialize state objects if they don't exist
         if (!updatedState.projectInfo) updatedState.projectInfo = {};
         if (!updatedState.clientInfo) updatedState.clientInfo = {};
         if (!updatedState.financialInfo) updatedState.financialInfo = {};
         if (!updatedState.contractOptions) updatedState.contractOptions = {};
         if (!updatedState.serviceMonitoring) updatedState.serviceMonitoring = {};
-        
+
         try {
             const structuredLLM = model.withStructuredOutput(UserInputExtractionSchema, {
                 name: "information_extraction",
                 method: "function_calling"
             });
-            
+
             const structuredResponse = await structuredLLM.invoke([
                 new HumanMessage(state.input)
             ]);
-            
+
             console.log("Structured extraction result:", JSON.stringify(structuredResponse, null, 2));
-            
+
             if (structuredResponse && typeof structuredResponse === 'object' && structuredResponse.extractedInfo) {
                 extractedData = structuredResponse;
                 const extracted = structuredResponse.extractedInfo;
-                
+
                 // Update project info - preserve existing data
                 if (extracted.projectName || extracted.projectDescription || extracted.timeline || extracted.deliverables) {
-                    updatedState.projectInfo = { 
+                    updatedState.projectInfo = {
                         ...updatedState.projectInfo,
                         ...(extracted.projectName && { projectName: extracted.projectName }),
                         ...(extracted.projectDescription && { projectDescription: extracted.projectDescription }),
@@ -437,20 +437,20 @@ Current stage: {stage}`;
                         ...(extracted.deliverables && { deliverables: extracted.deliverables })
                     };
                 }
-                
+
                 // Update client info - preserve existing data
                 if (extracted.clientName || extracted.email || extracted.walletAddress) {
-                    updatedState.clientInfo = { 
+                    updatedState.clientInfo = {
                         ...updatedState.clientInfo,
                         ...(extracted.clientName && { clientName: extracted.clientName }),
                         ...(extracted.email && { email: extracted.email }),
                         ...(extracted.walletAddress && { walletAddress: extracted.walletAddress })
                     };
                 }
-                
+
                 // Update financial info - preserve existing data
                 if (extracted.paymentAmount) {
-                    updatedState.financialInfo = { 
+                    updatedState.financialInfo = {
                         ...updatedState.financialInfo,
                         paymentAmount: extracted.paymentAmount,
                         currency: 'INR'
@@ -483,7 +483,7 @@ Current stage: {stage}`;
         } catch (error) {
             console.log("Structured extraction failed, using fallback", error);
         }
-        
+
         // If wallet address is provided in state but not in clientInfo, add it
         if (state.walletAddress && !updatedState.clientInfo.walletAddress) {
             updatedState.clientInfo.walletAddress = state.walletAddress;
@@ -509,16 +509,16 @@ Current stage: {stage}`;
         const totalRequired = Object.keys(newCollectedFields).length;
         const collectedCount = Object.values(newCollectedFields).filter(Boolean).length;
         const progress = Math.round((collectedCount / totalRequired) * 80) + 10;
-        
+
         console.log(`Collection progress: ${collectedCount}/6 fields collected (${progress}%)`);
         console.log("Collected fields:", newCollectedFields);
-        
+
         // Determine next operation
         const content = response.content as string;
         let operation = "collect_initiator_info"; // Default: stay in collection mode
         let nextStage = 'information_collection';
         let isComplete = false;
-        
+
         // Only move to final processing when ALL 6 fields are collected
         if (content.includes("[READY_FOR_DATA]") || collectedCount === totalRequired) {
             operation = "request_missing_info";
@@ -532,9 +532,9 @@ Current stage: {stage}`;
         // Clean response
         const cleanedContent = content.replace(/\[(CONTINUE_INFO|READY_FOR_DATA)\]/g, '').trim();
 
-        return { 
+        return {
             result: cleanedContent,
-            messages: [cleanedContent], 
+            messages: [cleanedContent],
             operation: operation,
             stage: nextStage,
             projectInfo: updatedState.projectInfo,
@@ -592,7 +592,7 @@ Current stage: {stage}`;
 - Platform Fee (2.5%): ₹{platform_fee} INR
 - Escrow Fee (0.5%): ₹{escrow_fee} INR
 - Total Escrow Amount: ₹{total_amount} INR
-- 0G Token Equivalent: {zeroG_equivalent} 0G
+- POL Token Equivalent: {zeroG_equivalent} POL
 
 ## Your Task:
 Provide a professional summary that:
@@ -634,7 +634,7 @@ Here's a summary of your project details:
 • Platform Fee (2.5%): ₹[fee] INR
 • Escrow Fee (0.5%): ₹[fee] INR
 • **Total Escrow Amount: ₹[total] INR**
-• 0G Token Equivalent: [amount] 0G
+• POL Token Equivalent: [amount] POL
 
 **🔄 Next Steps:**
 1. Contract will be generated with these details
@@ -659,7 +659,7 @@ Always end with: [DATA_COMPLETE]`;
         const totalAmount = paymentAmount + platformFee + escrowFee;
         const zeroGEquivalent = Math.round((totalAmount * 0.1) * 100) / 100; // Mock rate
 
-        const response = await prompt.pipe(model).invoke({ 
+        const response = await prompt.pipe(model).invoke({
             chat_history: state.chatHistory,
             stage: state.stage || 'data_ready',
             project_name: state.projectInfo?.projectName || "Untitled Project",
@@ -724,7 +724,7 @@ Always end with: [DATA_COMPLETE]`;
             },
             escrowDetails: {
                 escrowType: "freelance_project",
-                paymentMethod: "0G_tokens",
+                paymentMethod: "POL_tokens",
                 releaseCondition: "project_completion",
                 disputeResolution: "automated_mediation"
             },
@@ -760,7 +760,7 @@ Always end with: [DATA_COMPLETE]`;
 
         // Create the JSON output with markers (hidden from user)
         const jsonOutput = `[JSON_DATA_START]${JSON.stringify(finalProjectData, null, 2)}[JSON_DATA_END]`;
-        
+
         // Show a clean success message to the user
         const userMessage = `✅ **Information Collection Successful!**
 
@@ -773,22 +773,22 @@ Thank you for providing all the details. Your contract is now being prepared.
 
 **What's happening next:**
 • Generating legal contract with Indian law compliance
-• Processing with secure 0G Compute Network
+• Processing with secure POL Compute Network
 • Preparing escrow smart contract
 • Setting up arbitration and monitoring hooks
 
 Please wait while we create your secure contract...`;
-        
+
         // Combine user message with hidden JSON data
         const finalResponse = `${userMessage}\n\n${jsonOutput}`;
 
         console.log("=== FINAL DATA READY ===");
         console.log("JSON Output:", JSON.stringify(finalProjectData, null, 2));
-        console.log("🚀 INFERENCE READY - Triggering 0G Compute");
+        console.log("🚀 INFERENCE READY - Triggering POL Compute");
 
-        return { 
+        return {
             result: finalResponse,
-            messages: [finalResponse], 
+            messages: [finalResponse],
             operation: "end",
             stage: 'completed',
             projectInfo: finalProjectData.projectInfo,
@@ -811,7 +811,7 @@ Please wait while we create your secure contract...`;
             },
             validationErrors: [],
             formData: finalProjectData,
-            // 0G Compute Integration - Signal that data is ready for inference
+            // POL Compute Integration - Signal that data is ready for inference
             inferenceReady: true,
             collectedData: finalProjectData
         };
@@ -823,25 +823,25 @@ Please wait while we create your secure contract...`;
         console.log("Stage:", state.stage);
         console.log("Operation:", state.operation);
         console.log("Information Collection:", state.information_collection);
-        
+
         // ALWAYS start with initial_node for first message or when no stage is set
         if (!state.stage || state.stage === 'initial') {
             console.log("→ Routing to initial_node (first message or initial stage)");
             return "initial_node";
         }
-        
+
         // If in information collection stage, go to collection node
         if (state.stage === 'information_collection') {
             console.log("→ Routing to collect_initiator_info (collection stage)");
             return "collect_initiator_info";
         }
-        
+
         // If data is ready, go to final processing
         if (state.stage === 'data_ready') {
             console.log("→ Routing to request_missing_info (data ready)");
             return "request_missing_info";
         }
-        
+
         // Default: go to initial node
         console.log("→ Routing to initial_node (default)");
         return "initial_node";
@@ -874,13 +874,13 @@ Please wait while we create your secure contract...`;
     //@ts-ignore
     graph.addConditionalEdges("collect_initiator_info", (state: ProjectState) => {
         console.log("Routing from collect_initiator_info. Operation:", state.operation, "Stage:", state.stage);
-        
+
         // If all information is collected, move to final processing
         if (state.operation === "request_missing_info" && state.stage === 'data_ready') {
             console.log("→ Moving to request_missing_info (final processing)");
             return "request_missing_info";
         }
-        
+
         // Otherwise, END and wait for next user message
         console.log("→ Ending conversation (waiting for user input)");
         return "end";

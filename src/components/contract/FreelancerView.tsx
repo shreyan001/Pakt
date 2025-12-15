@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Briefcase, CheckCircle2, AlertCircle, Loader2, ExternalLink, Github, Upload } from 'lucide-react'
 import { useAccount } from 'wagmi'
-import { withdrawFunds, waitForTransaction } from '@/lib/contracts/PaktClient'
+import { withdrawFunds, waitForTransaction } from '@/lib/contracts/pacterClient'
 import { useWalletClient, usePublicClient } from 'wagmi'
 import { type Hash } from 'viem'
 import { getCurrentNetwork } from '@/lib/contracts/config'
@@ -42,7 +42,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [submitError, setSubmitError] = useState<string | null>(null)
-  
+
   // Log when component receives updates
   React.useEffect(() => {
     console.log('📊 FreelancerView received contract update:', {
@@ -52,7 +52,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
       paymentReleased: contract?.milestones?.[0]?.payment?.released
     })
   }, [contract])
-  
+
   // Verification modal state
   type VerificationStep = {
     id: string
@@ -61,18 +61,18 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
     details?: string
     link?: string
   }
-  
+
   const [showVerificationModal, setShowVerificationModal] = useState(false)
   const [verificationSteps, setVerificationSteps] = useState<VerificationStep[]>([
     { id: 'github', title: 'Verifying GitHub Repository', status: 'pending', details: '' },
     { id: 'download', title: 'Downloading Repository', status: 'pending', details: '' },
-    { id: 'upload', title: 'Uploading to 0G Storage', status: 'pending', details: '' },
+    { id: 'upload', title: 'Uploading to POL Storage', status: 'pending', details: '' },
     { id: 'sign', title: 'Agent Signing On-Chain', status: 'pending', details: '' },
     { id: 'complete', title: 'Finalizing Verification', status: 'pending', details: '' },
   ])
   const [currentVerificationStep, setCurrentVerificationStep] = useState(0)
   const [verificationError, setVerificationError] = useState<string | null>(null)
-  
+
   const [isWithdrawing, setIsWithdrawing] = useState(false)
   const [withdrawStatus, setWithdrawStatus] = useState<'idle' | 'pending' | 'confirming' | 'success' | 'error'>('idle')
   const [withdrawTxHash, setWithdrawTxHash] = useState<Hash | null>(null)
@@ -80,14 +80,14 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
 
   // Check if user is the freelancer
   const isFreelancer = address?.toLowerCase() === contract?.parties?.freelancer?.walletAddress?.toLowerCase()
-  
+
   // Get milestone data
   const milestone = contract?.milestones?.[0] // First milestone
   const deliverableSubmitted = milestone?.deliverable?.submitted === true
   const agentVerified = milestone?.verification?.agentVerified === true
   const paymentApproved = milestone?.payment?.approved === true
   const paymentReleased = milestone?.payment?.released === true
-  
+
   // Get order hash
   const orderHash = contract?.escrow?.orderHash || contract?.escrow?.deposit?.orderHash
 
@@ -112,24 +112,24 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
       </Card>
     )
   }
-  
+
   // Determine current state
-  const currentState = !deliverableSubmitted 
+  const currentState = !deliverableSubmitted
     ? 'ready_to_submit'
-    : !agentVerified 
-    ? 'awaiting_verification'
-    : !paymentApproved
-    ? 'awaiting_approval'
-    : !paymentReleased
-    ? 'ready_to_withdraw'
-    : 'completed'
+    : !agentVerified
+      ? 'awaiting_verification'
+      : !paymentApproved
+        ? 'awaiting_approval'
+        : !paymentReleased
+          ? 'ready_to_withdraw'
+          : 'completed'
 
   // Update verification step
   function updateVerificationStep(stepId: string, status: 'processing' | 'completed' | 'error', details?: string, link?: string) {
-    setVerificationSteps(prev => prev.map(step => 
+    setVerificationSteps(prev => prev.map(step =>
       step.id === stepId ? { ...step, status, details, link } : step
     ))
-    
+
     // Update current step index
     const stepIndex = verificationSteps.findIndex(s => s.id === stepId)
     if (stepIndex !== -1) {
@@ -153,12 +153,12 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
     setSubmitStatus('submitting')
     setSubmitError(null)
     setVerificationError(null)
-    
+
     // Reset and show modal
     setVerificationSteps([
       { id: 'github', title: 'Verifying GitHub Repository', status: 'pending', details: '' },
       { id: 'download', title: 'Downloading Repository', status: 'pending', details: '' },
-      { id: 'upload', title: 'Uploading to 0G Storage', status: 'pending', details: '' },
+      { id: 'upload', title: 'Uploading to POL Storage', status: 'pending', details: '' },
       { id: 'sign', title: 'Agent Signing On-Chain', status: 'pending', details: '' },
       { id: 'complete', title: 'Finalizing Verification', status: 'pending', details: '' },
     ])
@@ -168,7 +168,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
     try {
       // STEP 1: GitHub Verification
       updateVerificationStep('github', 'processing', 'Checking repository accessibility...')
-      
+
       const githubResponse = await fetch('/api/verify/github', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -184,14 +184,14 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
       }
 
       updateVerificationStep(
-        'github', 
-        'completed', 
+        'github',
+        'completed',
         `Repository verified: ${githubResult.owner}/${githubResult.repo}`,
         githubResult.githubUrl
       )
 
-      // STEP 2: Upload to 0G Storage
-      updateVerificationStep('upload', 'processing', 'Uploading deliverable to 0G Storage...')
+      // STEP 2: Upload to POL Storage
+      updateVerificationStep('upload', 'processing', 'Uploading deliverable to POL Storage...')
 
       const storageResponse = await fetch('/api/verify/storage', {
         method: 'POST',
@@ -204,11 +204,11 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
 
       const storageResult = await storageResponse.json()
       if (!storageResponse.ok) {
-        throw new Error(storageResult.error || '0G Storage upload failed')
+        throw new Error(storageResult.error || 'POL Storage upload failed')
       }
 
       const storageExplorerUrl = storageResult.storageTxHash
-        ? `https://chainscan-galileo.0g.ai/tx/${storageResult.storageTxHash}`
+        ? `https://chainscan-galileo.POL.ai/tx/${storageResult.storageTxHash}`
         : undefined
 
       updateVerificationStep(
@@ -220,16 +220,16 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
 
       // STEP 3: Agent Signs On-Chain
       updateVerificationStep('sign', 'processing', 'Agent signing verification on-chain...')
-      
+
       const verificationDetails = JSON.stringify({
         verifiedBy: 'Pakt-AI-Agent',
         verifiedAt: new Date().toISOString(),
-        method: 'GitHub + 0G Storage',
+        method: 'GitHub + POL Storage',
         githubRepo: githubUrl.trim(),
         storageHash: githubResult.rootHash,
         storageTxHash: githubResult.txHash
       })
-      
+
       const agentResponse = await fetch('/api/verify/agent-sign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -246,13 +246,13 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
 
       // Build proper explorer URL
       const explorerUrl = agentResult.transactionHash && agentResult.transactionHash !== 'Already verified'
-        ? `https://chainscan-galileo.0g.ai/tx/${agentResult.transactionHash}`
+        ? `https://chainscan-galileo.POL.ai/tx/${agentResult.transactionHash}`
         : undefined
-      
+
       updateVerificationStep(
-        'sign', 
-        'completed', 
-        agentResult.alreadyVerified 
+        'sign',
+        'completed',
+        agentResult.alreadyVerified
           ? 'Already verified (skipped)'
           : `Transaction: ${agentResult.transactionHash?.substring(0, 20)}...`,
         explorerUrl
@@ -260,7 +260,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
 
       // STEP 4: Finalize - Update Contract
       updateVerificationStep('complete', 'processing', 'Updating contract state...')
-      
+
       const finalizeResponse = await fetch('/api/verify/finalize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -284,9 +284,9 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
 
       // Verification complete!
       setSubmitStatus('success')
-      
+
       console.log('✅ Verification complete! Triggering contract update...')
-      
+
       // Trigger immediate contract update
       if (onContractUpdate) {
         setTimeout(() => {
@@ -294,14 +294,14 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
           onContractUpdate()
         }, 1000) // Wait 1 second for backend to finish updating
       }
-      
+
     } catch (err: any) {
       console.error('Submit error:', err)
       const errorMessage = err.message || 'Failed to submit deliverable'
       setSubmitError(errorMessage)
       setVerificationError(errorMessage)
       setSubmitStatus('error')
-      
+
       // Mark current step as error
       const currentStep = verificationSteps.find(s => s.status === 'processing')
       if (currentStep) {
@@ -334,7 +334,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
 
       if (receipt.status === 'success') {
         setWithdrawStatus('success')
-        
+
         // Update backend
         await updateBackendAfterWithdrawal(hash)
       } else {
@@ -353,11 +353,11 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
   async function updateBackendAfterWithdrawal(transactionHash: Hash) {
     try {
       console.log('📝 Updating backend after withdrawal...')
-      
+
       const updateData = {
         id: contract.id,
         currentStage: 'Contract Completed',
-        milestones: contract.milestones.map((m: any, idx: number) => 
+        milestones: contract.milestones.map((m: any, idx: number) =>
           idx === 0 ? {
             ...m,
             status: 'COMPLETED', // Ensure milestone status is COMPLETED
@@ -382,9 +382,9 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
         ],
         lastUpdated: new Date().toISOString()
       }
-      
+
       console.log('📤 Sending withdrawal update:', JSON.stringify(updateData, null, 2))
-      
+
       const response = await fetch(`/api/contracts`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -396,7 +396,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
         console.error('❌ Backend update failed:', errorText)
         throw new Error('Failed to update backend')
       }
-      
+
       const result = await response.json()
       console.log('✅ Backend updated successfully:', result)
 
@@ -405,7 +405,7 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
         console.log('🔄 Triggering parent refresh...')
         onContractUpdate()
       }
-      
+
       // Reload page to show completed status
       setTimeout(() => {
         console.log('🔄 Reloading page to show completion...')
@@ -462,392 +462,392 @@ export default function FreelancerView({ contract, onContractUpdate }: Freelance
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 font-mono">
-        {/* State 1: Ready to Submit */}
-        {currentState === 'ready_to_submit' && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white font-mono">Submit Your Work</h3>
-            
-            <div className="bg-slate-900/50 rounded-lg p-6 space-y-4 border border-slate-700">
-              {/* GitHub URL Input */}
-              <div className="space-y-2">
-                <Label htmlFor="github-url" className="text-slate-300 font-mono text-sm">
-                  GitHub Repository URL *
-                </Label>
-                <div className="relative">
-                  <Github className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="github-url"
-                    type="url"
-                    placeholder="https://github.com/username/repository"
-                    value={githubUrl}
-                    onChange={(e) => setGithubUrl(e.target.value)}
-                    className="pl-10 bg-slate-800 border-slate-700 text-white focus:border-indigo-500 font-mono text-sm"
+          {/* State 1: Ready to Submit */}
+          {currentState === 'ready_to_submit' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white font-mono">Submit Your Work</h3>
+
+              <div className="bg-slate-900/50 rounded-lg p-6 space-y-4 border border-slate-700">
+                {/* GitHub URL Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="github-url" className="text-slate-300 font-mono text-sm">
+                    GitHub Repository URL *
+                  </Label>
+                  <div className="relative">
+                    <Github className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Input
+                      id="github-url"
+                      type="url"
+                      placeholder="https://github.com/username/repository"
+                      value={githubUrl}
+                      onChange={(e) => setGithubUrl(e.target.value)}
+                      className="pl-10 bg-slate-800 border-slate-700 text-white focus:border-indigo-500 font-mono text-sm"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 font-mono">Public repository required for verification</p>
+                </div>
+
+                {/* Deployment URL Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="deployment-url" className="text-slate-300 font-mono text-sm">
+                    Deployment URL (Optional)
+                  </Label>
+                  <div className="relative">
+                    <ExternalLink className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Input
+                      id="deployment-url"
+                      type="url"
+                      placeholder="https://your-app.vercel.app"
+                      value={deploymentUrl}
+                      onChange={(e) => setDeploymentUrl(e.target.value)}
+                      className="pl-10 bg-slate-800 border-slate-700 text-white focus:border-indigo-500 font-mono text-sm"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 font-mono">Live deployment for client testing</p>
+                </div>
+
+                {/* Comments */}
+                <div className="space-y-2">
+                  <Label htmlFor="comments" className="text-slate-300 font-mono text-sm">
+                    Additional Comments (Optional)
+                  </Label>
+                  <textarea
+                    id="comments"
+                    placeholder="Describe your implementation, any special features, or notes for the client..."
+                    value={comments}
+                    onChange={(e) => setComments(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded p-3 text-white text-sm min-h-[100px] focus:border-indigo-500 focus:outline-none font-mono"
                     disabled={isSubmitting}
                   />
                 </div>
-                <p className="text-xs text-slate-500 font-mono">Public repository required for verification</p>
-              </div>
 
-              {/* Deployment URL Input */}
-              <div className="space-y-2">
-                <Label htmlFor="deployment-url" className="text-slate-300 font-mono text-sm">
-                  Deployment URL (Optional)
-                </Label>
-                <div className="relative">
-                  <ExternalLink className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="deployment-url"
-                    type="url"
-                    placeholder="https://your-app.vercel.app"
-                    value={deploymentUrl}
-                    onChange={(e) => setDeploymentUrl(e.target.value)}
-                    className="pl-10 bg-slate-800 border-slate-700 text-white focus:border-indigo-500 font-mono text-sm"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                <p className="text-xs text-slate-500 font-mono">Live deployment for client testing</p>
-              </div>
-
-              {/* Comments */}
-              <div className="space-y-2">
-                <Label htmlFor="comments" className="text-slate-300 font-mono text-sm">
-                  Additional Comments (Optional)
-                </Label>
-                <textarea
-                  id="comments"
-                  placeholder="Describe your implementation, any special features, or notes for the client..."
-                  value={comments}
-                  onChange={(e) => setComments(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded p-3 text-white text-sm min-h-[100px] focus:border-indigo-500 focus:outline-none font-mono"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              {/* Error Display */}
-              {submitError && submitStatus === 'error' && (
-                <Alert className="border-red-500/50 bg-red-500/10">
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                  <AlertDescription className="text-red-400 font-mono text-sm">
-                    {submitError}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* Success Display */}
-              {submitStatus === 'success' && (
-                <Alert className="border-green-500/50 bg-green-500/10">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <AlertDescription className="text-green-400 font-mono text-sm">
-                    ✅ Verification complete! Updating contract status...
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* Submit Button */}
-              <Button
-                onClick={handleSubmitDeliverable}
-                disabled={isSubmitting || !githubUrl.trim()}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-mono"
-                size="lg"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {submitStatus === 'submitting' && 'Verifying & Uploading...'}
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Submit for Verification
-                  </>
+                {/* Error Display */}
+                {submitError && submitStatus === 'error' && (
+                  <Alert className="border-red-500/50 bg-red-500/10">
+                    <AlertCircle className="h-4 w-4 text-red-500" />
+                    <AlertDescription className="text-red-400 font-mono text-sm">
+                      {submitError}
+                    </AlertDescription>
+                  </Alert>
                 )}
-              </Button>
 
-              {/* Instructions */}
-              <div className="text-sm text-slate-400 space-y-2 pt-4 border-t border-slate-700">
-                <p className="font-medium text-slate-300 font-mono">What happens next:</p>
-                <ol className="list-decimal list-inside space-y-1 ml-2 font-mono text-xs">
-                  <li>GitHub repository verified for authenticity</li>
-                  <li>Deployment connection validated (if provided)</li>
-                  <li>Repository downloaded and uploaded to 0G storage</li>
-                  <li>Agent approves milestone on-chain</li>
-                  <li>Client reviews and approves payment</li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        )}
+                {/* Success Display */}
+                {submitStatus === 'success' && (
+                  <Alert className="border-green-500/50 bg-green-500/10">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <AlertDescription className="text-green-400 font-mono text-sm">
+                      ✅ Verification complete! Updating contract status...
+                    </AlertDescription>
+                  </Alert>
+                )}
 
-        {/* State 2: Awaiting Verification */}
-        {currentState === 'awaiting_verification' && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white font-mono">Verification in Progress</h3>
-            
-            <Alert className="border-blue-500/50 bg-blue-500/10">
-              <Loader2 className="h-4 w-4 text-blue-400 animate-spin" />
-              <AlertDescription className="text-blue-300 font-mono text-sm">
-                AI agent is verifying your deliverable. This usually takes 2-5 minutes.
-              </AlertDescription>
-            </Alert>
+                {/* Submit Button */}
+                <Button
+                  onClick={handleSubmitDeliverable}
+                  disabled={isSubmitting || !githubUrl.trim()}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-mono"
+                  size="lg"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {submitStatus === 'submitting' && 'Verifying & Uploading...'}
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Submit for Verification
+                    </>
+                  )}
+                </Button>
 
-            <div className="bg-slate-900/50 rounded-lg p-6 space-y-4 border border-slate-700">
-              <div className="space-y-2">
-                <p className="text-sm text-slate-400 font-mono">Submitted GitHub URL</p>
-                <div className="bg-slate-800 rounded p-3 border border-slate-700">
-                  <p className="text-indigo-300 text-sm break-all font-mono">
-                    {milestone?.deliverable?.githubUrl || 'Loading...'}
-                  </p>
+                {/* Instructions */}
+                <div className="text-sm text-slate-400 space-y-2 pt-4 border-t border-slate-700">
+                  <p className="font-medium text-slate-300 font-mono">What happens next:</p>
+                  <ol className="list-decimal list-inside space-y-1 ml-2 font-mono text-xs">
+                    <li>GitHub repository verified for authenticity</li>
+                    <li>Deployment connection validated (if provided)</li>
+                    <li>Repository downloaded and uploaded to POL storage</li>
+                    <li>Agent approves milestone on-chain</li>
+                    <li>Client reviews and approves payment</li>
+                  </ol>
                 </div>
               </div>
-
-              <div className="text-sm text-slate-400 font-mono">
-                <p className="font-medium text-slate-300 mb-2">Verification checks:</p>
-                <ul className="space-y-1 ml-4 text-xs">
-                  <li>• Repository accessibility</li>
-                  <li>• Deployment connection (if provided)</li>
-                  <li>• Code authenticity</li>
-                  <li>• File storage on 0G network</li>
-                  <li>• On-chain approval by agent</li>
-                </ul>
-              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* State 3: Under Review by Client */}
-        {currentState === 'awaiting_approval' && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white font-mono">📋 Under Review by Client</h3>
-            
-            <Alert className="border-green-500/50 bg-green-500/10">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <AlertDescription className="text-green-400 font-mono text-sm">
-                ✅ Verification passed! Your work is under client review.
-              </AlertDescription>
-            </Alert>
-
-            <div className="bg-slate-900/50 rounded-lg p-6 space-y-4 border border-slate-700">
-              <div className="flex items-center gap-3 bg-indigo-900/20 rounded-lg p-4 border border-indigo-500/30">
-                <Loader2 className="w-5 h-5 text-indigo-400 animate-spin flex-shrink-0" />
-                <p className="text-slate-200 font-mono text-sm font-medium">
-                  🔄 Waiting for client to review and approve payment...
-                </p>
-              </div>
-              
-              {/* Deliverable Info */}
-              <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-                <p className="text-white font-semibold mb-3 text-sm font-mono">Your Submission:</p>
-                <div className="space-y-2 text-xs font-mono">
-                  {milestone?.deliverable?.githubUrl && (
-                    <div className="flex flex-col gap-1">
-                      <span className="text-slate-400">GitHub Repository:</span>
-                      <a 
-                        href={milestone.deliverable.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-indigo-300 hover:text-indigo-200 break-all underline"
-                      >
-                        {milestone.deliverable.githubUrl}
-                      </a>
-                    </div>
-                  )}
-                  {milestone?.deliverable?.deploymentUrl && (
-                    <div className="flex flex-col gap-1">
-                      <span className="text-slate-400">Live Deployment:</span>
-                      <a 
-                        href={milestone.deliverable.deploymentUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-indigo-300 hover:text-indigo-200 break-all underline"
-                      >
-                        {milestone.deliverable.deploymentUrl}
-                      </a>
-                    </div>
-                  )}
-                  {milestone?.deliverable?.submittedAt && (
-                    <div className="pt-2 border-t border-slate-700">
-                      <span className="text-slate-400">Submitted: </span>
-                      <span className="text-slate-300">{new Date(milestone.deliverable.submittedAt).toLocaleString()}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="text-sm text-slate-400 font-mono bg-slate-800/30 rounded-lg p-4">
-                <p className="font-medium text-slate-300 mb-2">💡 What the client can see:</p>
-                <ul className="space-y-1 ml-4 text-xs">
-                  <li>✓ Your live deployment (if provided)</li>
-                  <li>✓ Verification proof from AI agent</li>
-                  <li>✓ Your additional comments</li>
-                  <li>✓ AI verification details</li>
-                </ul>
-              </div>
+          {/* State 2: Awaiting Verification */}
+          {currentState === 'awaiting_verification' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white font-mono">Verification in Progress</h3>
 
               <Alert className="border-blue-500/50 bg-blue-500/10">
-                <AlertCircle className="h-4 w-4 text-blue-400" />
-                <AlertDescription className="text-blue-300 font-mono text-xs">
-                  💰 The client is reviewing your work. Once approved, you'll be able to withdraw your payment immediately.
+                <Loader2 className="h-4 w-4 text-blue-400 animate-spin" />
+                <AlertDescription className="text-blue-300 font-mono text-sm">
+                  AI agent is verifying your deliverable. This usually takes 2-5 minutes.
                 </AlertDescription>
               </Alert>
-            </div>
-          </div>
-        )}
 
-        {/* State 4: Ready to Withdraw */}
-        {currentState === 'ready_to_withdraw' && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white font-mono">🎉 Payment Approved!</h3>
-            
-            <Alert className="border-green-500/50 bg-green-500/10">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <AlertDescription className="text-green-400 font-mono text-sm">
-                ✅ Client approved your work! You can now withdraw your payment.
-              </AlertDescription>
-            </Alert>
+              <div className="bg-slate-900/50 rounded-lg p-6 space-y-4 border border-slate-700">
+                <div className="space-y-2">
+                  <p className="text-sm text-slate-400 font-mono">Submitted GitHub URL</p>
+                  <div className="bg-slate-800 rounded p-3 border border-slate-700">
+                    <p className="text-indigo-300 text-sm break-all font-mono">
+                      {milestone?.deliverable?.githubUrl || 'Loading...'}
+                    </p>
+                  </div>
+                </div>
 
-            <div className="bg-gradient-to-r from-green-900/20 to-green-800/20 rounded-lg p-6 space-y-4 border border-green-500/30">
-              {/* Payment Details */}
-              <div className="bg-slate-800/50 rounded-lg p-4 space-y-3">
-                <h4 className="text-white font-medium font-mono text-sm mb-3">Payment Details</h4>
-                <div className="flex justify-between text-sm font-mono">
-                  <span className="text-slate-400">Escrow Amount</span>
-                  <span className="text-green-400 font-bold">0.09 0G</span>
-                </div>
-                <div className="flex justify-between text-sm font-mono">
-                  <span className="text-slate-400">INR Equivalent</span>
-                  <span className="text-green-400 font-bold">≈ ₹90,000</span>
-                </div>
-                <div className="border-t border-slate-700 pt-3 flex justify-between">
-                  <span className="text-white font-semibold font-mono">Total Withdrawal</span>
-                  <span className="text-green-400 font-bold text-lg font-mono">0.09 0G</span>
+                <div className="text-sm text-slate-400 font-mono">
+                  <p className="font-medium text-slate-300 mb-2">Verification checks:</p>
+                  <ul className="space-y-1 ml-4 text-xs">
+                    <li>• Repository accessibility</li>
+                    <li>• Deployment connection (if provided)</li>
+                    <li>• Code authenticity</li>
+                    <li>• File storage on POL network</li>
+                    <li>• On-chain approval by agent</li>
+                  </ul>
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* Approval Info */}
-              <div className="bg-slate-800/50 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-slate-300 font-medium font-mono text-sm">Client Approval Received</p>
-                    <p className="text-slate-400 text-xs font-mono mt-1">
-                      Your work has been reviewed and approved. Funds are ready for withdrawal.
-                    </p>
-                    {milestone?.payment?.approvedAt && (
-                      <p className="text-slate-500 text-xs font-mono mt-1">
-                        Approved: {new Date(milestone.payment.approvedAt).toLocaleString()}
-                      </p>
+          {/* State 3: Under Review by Client */}
+          {currentState === 'awaiting_approval' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white font-mono">📋 Under Review by Client</h3>
+
+              <Alert className="border-green-500/50 bg-green-500/10">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <AlertDescription className="text-green-400 font-mono text-sm">
+                  ✅ Verification passed! Your work is under client review.
+                </AlertDescription>
+              </Alert>
+
+              <div className="bg-slate-900/50 rounded-lg p-6 space-y-4 border border-slate-700">
+                <div className="flex items-center gap-3 bg-indigo-900/20 rounded-lg p-4 border border-indigo-500/30">
+                  <Loader2 className="w-5 h-5 text-indigo-400 animate-spin flex-shrink-0" />
+                  <p className="text-slate-200 font-mono text-sm font-medium">
+                    🔄 Waiting for client to review and approve payment...
+                  </p>
+                </div>
+
+                {/* Deliverable Info */}
+                <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                  <p className="text-white font-semibold mb-3 text-sm font-mono">Your Submission:</p>
+                  <div className="space-y-2 text-xs font-mono">
+                    {milestone?.deliverable?.githubUrl && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-slate-400">GitHub Repository:</span>
+                        <a
+                          href={milestone.deliverable.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-indigo-300 hover:text-indigo-200 break-all underline"
+                        >
+                          {milestone.deliverable.githubUrl}
+                        </a>
+                      </div>
+                    )}
+                    {milestone?.deliverable?.deploymentUrl && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-slate-400">Live Deployment:</span>
+                        <a
+                          href={milestone.deliverable.deploymentUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-indigo-300 hover:text-indigo-200 break-all underline"
+                        >
+                          {milestone.deliverable.deploymentUrl}
+                        </a>
+                      </div>
+                    )}
+                    {milestone?.deliverable?.submittedAt && (
+                      <div className="pt-2 border-t border-slate-700">
+                        <span className="text-slate-400">Submitted: </span>
+                        <span className="text-slate-300">{new Date(milestone.deliverable.submittedAt).toLocaleString()}</span>
+                      </div>
                     )}
                   </div>
                 </div>
-              </div>
 
-              {/* Error Display */}
-              {withdrawError && withdrawStatus === 'error' && (
-                <Alert className="border-red-500/50 bg-red-500/10">
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                  <AlertDescription className="text-red-400 font-mono text-sm">
-                    {withdrawError}
+                <div className="text-sm text-slate-400 font-mono bg-slate-800/30 rounded-lg p-4">
+                  <p className="font-medium text-slate-300 mb-2">💡 What the client can see:</p>
+                  <ul className="space-y-1 ml-4 text-xs">
+                    <li>✓ Your live deployment (if provided)</li>
+                    <li>✓ Verification proof from AI agent</li>
+                    <li>✓ Your additional comments</li>
+                    <li>✓ AI verification details</li>
+                  </ul>
+                </div>
+
+                <Alert className="border-blue-500/50 bg-blue-500/10">
+                  <AlertCircle className="h-4 w-4 text-blue-400" />
+                  <AlertDescription className="text-blue-300 font-mono text-xs">
+                    💰 The client is reviewing your work. Once approved, you'll be able to withdraw your payment immediately.
                   </AlertDescription>
                 </Alert>
-              )}
-
-              {/* Success Display */}
-              {withdrawStatus === 'success' && (
-                <Alert className="border-green-500/50 bg-green-500/10">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <AlertDescription className="text-green-400 font-mono text-sm">
-                    ✅ Withdrawal successful! Funds have been transferred to your wallet.
-                    {withdrawTxHash && (
-                      <a
-                        href={`${network.blockExplorer}/tx/${withdrawTxHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ml-2 inline-flex items-center gap-1 text-green-300 hover:text-green-200 underline"
-                      >
-                        View Transaction <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* Withdraw Button */}
-              <Button
-                onClick={handleWithdrawFunds}
-                disabled={isWithdrawing || withdrawStatus === 'success'}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-mono text-lg py-6"
-                size="lg"
-              >
-                {isWithdrawing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    {withdrawStatus === 'pending' && 'Confirm in Wallet...'}
-                    {withdrawStatus === 'confirming' && 'Processing Withdrawal...'}
-                  </>
-                ) : withdrawStatus === 'success' ? (
-                  <>
-                    <CheckCircle2 className="w-5 h-5 mr-2" />
-                    Withdrawal Complete
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-5 h-5 mr-2" />
-                    Withdraw 0.09 0G Now
-                  </>
-                )}
-              </Button>
-
-              {withdrawStatus === 'error' && (
-                <Button
-                  onClick={() => {
-                    setWithdrawStatus('idle')
-                    setWithdrawError(null)
-                    setWithdrawTxHash(null)
-                  }}
-                  variant="outline"
-                  className="w-full border-slate-600 text-slate-300 hover:bg-slate-700 font-mono"
-                >
-                  Retry Withdrawal
-                </Button>
-              )}
-
-              {/* Instructions */}
-              <div className="text-xs text-slate-400 font-mono space-y-1 pt-4 border-t border-slate-700">
-                <p className="font-medium text-slate-300">What happens when you withdraw:</p>
-                <ul className="list-disc list-inside space-y-0.5 ml-2">
-                  <li>0.09 0G tokens transferred to your wallet</li>
-                  <li>Contract marked as completed</li>
-                  <li>Transaction recorded on blockchain</li>
-                  <li>Project officially finished</li>
-                </ul>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* State 5: Completed */}
-        {currentState === 'completed' && (
-          <div className="space-y-4">
-            <Alert className="border-green-500/50 bg-green-500/10">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <AlertDescription className="text-green-400 font-mono text-sm">
-                ✅ Contract completed successfully! Payment has been withdrawn.
-                {withdrawTxHash && (
-                  <a
-                    href={`${network.blockExplorer}/tx/${withdrawTxHash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-2 inline-flex items-center gap-1 text-green-300 hover:text-green-200 underline"
-                  >
-                    View Transaction <ExternalLink className="w-3 h-3" />
-                  </a>
+          {/* State 4: Ready to Withdraw */}
+          {currentState === 'ready_to_withdraw' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white font-mono">🎉 Payment Approved!</h3>
+
+              <Alert className="border-green-500/50 bg-green-500/10">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <AlertDescription className="text-green-400 font-mono text-sm">
+                  ✅ Client approved your work! You can now withdraw your payment.
+                </AlertDescription>
+              </Alert>
+
+              <div className="bg-gradient-to-r from-green-900/20 to-green-800/20 rounded-lg p-6 space-y-4 border border-green-500/30">
+                {/* Payment Details */}
+                <div className="bg-slate-800/50 rounded-lg p-4 space-y-3">
+                  <h4 className="text-white font-medium font-mono text-sm mb-3">Payment Details</h4>
+                  <div className="flex justify-between text-sm font-mono">
+                    <span className="text-slate-400">Escrow Amount</span>
+                    <span className="text-green-400 font-bold">0.09 POL</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-mono">
+                    <span className="text-slate-400">INR Equivalent</span>
+                    <span className="text-green-400 font-bold">≈ ₹90,000</span>
+                  </div>
+                  <div className="border-t border-slate-700 pt-3 flex justify-between">
+                    <span className="text-white font-semibold font-mono">Total Withdrawal</span>
+                    <span className="text-green-400 font-bold text-lg font-mono">0.09 POL</span>
+                  </div>
+                </div>
+
+                {/* Approval Info */}
+                <div className="bg-slate-800/50 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-slate-300 font-medium font-mono text-sm">Client Approval Received</p>
+                      <p className="text-slate-400 text-xs font-mono mt-1">
+                        Your work has been reviewed and approved. Funds are ready for withdrawal.
+                      </p>
+                      {milestone?.payment?.approvedAt && (
+                        <p className="text-slate-500 text-xs font-mono mt-1">
+                          Approved: {new Date(milestone.payment.approvedAt).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Error Display */}
+                {withdrawError && withdrawStatus === 'error' && (
+                  <Alert className="border-red-500/50 bg-red-500/10">
+                    <AlertCircle className="h-4 w-4 text-red-500" />
+                    <AlertDescription className="text-red-400 font-mono text-sm">
+                      {withdrawError}
+                    </AlertDescription>
+                  </Alert>
                 )}
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+
+                {/* Success Display */}
+                {withdrawStatus === 'success' && (
+                  <Alert className="border-green-500/50 bg-green-500/10">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <AlertDescription className="text-green-400 font-mono text-sm">
+                      ✅ Withdrawal successful! Funds have been transferred to your wallet.
+                      {withdrawTxHash && (
+                        <a
+                          href={`${network.blockExplorer}/tx/${withdrawTxHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ml-2 inline-flex items-center gap-1 text-green-300 hover:text-green-200 underline"
+                        >
+                          View Transaction <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Withdraw Button */}
+                <Button
+                  onClick={handleWithdrawFunds}
+                  disabled={isWithdrawing || withdrawStatus === 'success'}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-mono text-lg py-6"
+                  size="lg"
+                >
+                  {isWithdrawing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      {withdrawStatus === 'pending' && 'Confirm in Wallet...'}
+                      {withdrawStatus === 'confirming' && 'Processing Withdrawal...'}
+                    </>
+                  ) : withdrawStatus === 'success' ? (
+                    <>
+                      <CheckCircle2 className="w-5 h-5 mr-2" />
+                      Withdrawal Complete
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-5 h-5 mr-2" />
+                      Withdraw 0.09 POL Now
+                    </>
+                  )}
+                </Button>
+
+                {withdrawStatus === 'error' && (
+                  <Button
+                    onClick={() => {
+                      setWithdrawStatus('idle')
+                      setWithdrawError(null)
+                      setWithdrawTxHash(null)
+                    }}
+                    variant="outline"
+                    className="w-full border-slate-600 text-slate-300 hover:bg-slate-700 font-mono"
+                  >
+                    Retry Withdrawal
+                  </Button>
+                )}
+
+                {/* Instructions */}
+                <div className="text-xs text-slate-400 font-mono space-y-1 pt-4 border-t border-slate-700">
+                  <p className="font-medium text-slate-300">What happens when you withdraw:</p>
+                  <ul className="list-disc list-inside space-y-0.5 ml-2">
+                    <li>0.09 POL tokens transferred to your wallet</li>
+                    <li>Contract marked as completed</li>
+                    <li>Transaction recorded on blockchain</li>
+                    <li>Project officially finished</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* State 5: Completed */}
+          {currentState === 'completed' && (
+            <div className="space-y-4">
+              <Alert className="border-green-500/50 bg-green-500/10">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <AlertDescription className="text-green-400 font-mono text-sm">
+                  ✅ Contract completed successfully! Payment has been withdrawn.
+                  {withdrawTxHash && (
+                    <a
+                      href={`${network.blockExplorer}/tx/${withdrawTxHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 inline-flex items-center gap-1 text-green-300 hover:text-green-200 underline"
+                    >
+                      View Transaction <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </>
   )
 }

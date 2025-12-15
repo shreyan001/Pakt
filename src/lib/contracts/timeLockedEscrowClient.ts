@@ -146,19 +146,19 @@ export async function getTimeLockedEscrowSummary(
 }
 
 /**
- * Client adds more time/funds (amount in 0G) and optionally extends duration.
+ * Client adds more time/funds (amount in POL) and optionally extends duration.
  */
 export async function renewTimeLockedEscrow(
   walletClient: WalletClient,
   escrowAddress: Address,
-  params: { amount0G: string; extraSeconds: bigint }
+  params: { amountPOL: string; extraSeconds: bigint }
 ): Promise<Hash> {
   return walletClient.writeContract({
     address: escrowAddress,
     abi: TIMELOCKED_ESCROW_ABI,
     functionName: "renew",
     args: [params.extraSeconds],
-    value: parseEther(params.amount0G),
+    value: parseEther(params.amountPOL),
     account: walletClient.account,
     chain: undefined,
   });
@@ -170,13 +170,13 @@ export async function renewTimeLockedEscrow(
 export async function fundTimeLockedEscrow(
   walletClient: WalletClient,
   escrowAddress: Address,
-  amount0G: string
+  amountPOL: string
 ): Promise<Hash> {
   return walletClient.writeContract({
     address: escrowAddress,
     abi: TIMELOCKED_ESCROW_ABI,
     functionName: "fund",
-    value: parseEther(amount0G),
+    value: parseEther(amountPOL),
     account: walletClient.account,
     chain: undefined,
   });
@@ -250,8 +250,8 @@ export async function estimateClaimableAmount(
   const effectiveNow = summary.paused
     ? summary.pausedAt
     : now > summary.startTimestamp
-    ? now
-    : summary.startTimestamp;
+      ? now
+      : summary.startTimestamp;
 
   const endTime =
     summary.startTimestamp + summary.durationSeconds + summary.accumulatedPausedSeconds;

@@ -32,7 +32,7 @@ export interface GraphState {
     projectDescription?: boolean;
     deadline?: boolean;
   };
-  // 0G Compute Integration
+  // POL Compute Integration
   inferenceReady?: boolean;
   collectedData?: CollectedContractData;
 }
@@ -147,7 +147,7 @@ export interface CreatePageState {
 }
 
 // ============================================================================
-// 0G Compute Integration Types
+// POL Compute Integration Types
 // ============================================================================
 
 /**
@@ -196,7 +196,7 @@ export interface CollectedContractData {
 }
 
 /**
- * Input format for 0G Compute secure inference
+ * Input format for POL Compute secure inference
  */
 export interface InferenceInput {
   prompt: string;
@@ -206,7 +206,7 @@ export interface InferenceInput {
 }
 
 /**
- * Output from 0G Compute secure inference
+ * Output from POL Compute secure inference
  */
 export interface InferenceOutput {
   contractText: string;
@@ -219,7 +219,7 @@ export interface InferenceOutput {
 }
 
 /**
- * Verification proof from 0G Compute
+ * Verification proof from POL Compute
  */
 export interface VerificationProof {
   type: 'TEE' | 'ZKP';

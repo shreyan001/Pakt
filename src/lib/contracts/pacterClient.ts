@@ -14,7 +14,7 @@ import {
   formatEther,
   type TransactionReceipt,
 } from "viem";
-import { Pakt_ABI, OrderState } from "./PaktABI";
+import { Pakt_ABI, OrderState } from "./pacterABI";
 import { getContractAddress, TX_CONFIG } from "./config";
 
 /**
@@ -23,8 +23,8 @@ import { getContractAddress, TX_CONFIG } from "./config";
 export interface CreateOrderParams {
   orderHash: Hash; // Fetched from backend
   freelancerAddress: Address;
-  escrowAmount: string; // in 0G tokens (e.g., "1.5")
-  storageFee: string; // in 0G tokens (e.g., "0.1")
+  escrowAmount: string; // in POL tokens (e.g., "1.5")
+  storageFee: string; // in POL tokens (e.g., "0.1")
   projectName: string;
 }
 
@@ -106,7 +106,7 @@ export async function createAndDepositOrder(
     if (
       !orderHash ||
       orderHash ===
-        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
     ) {
       throw new Error("Invalid order hash");
     }
@@ -128,9 +128,9 @@ export async function createAndDepositOrder(
     console.log("Creating escrow order:", {
       orderHash,
       freelancerAddress,
-      escrowAmount: escrowAmount + " 0G",
-      storageFee: storageFee + " 0G",
-      totalAmount: formatEther(totalAmount) + " 0G",
+      escrowAmount: escrowAmount + " POL",
+      storageFee: storageFee + " POL",
+      totalAmount: formatEther(totalAmount) + " POL",
       projectName,
     });
 
@@ -143,7 +143,7 @@ export async function createAndDepositOrder(
       abi: Pakt_ABI,
       functionName: "createAndDeposit",
       args: [orderHash, freelancerAddress, escrowWei, storageWei, projectName],
-      value: totalAmount, // Send native 0G tokens
+      value: totalAmount, // Send native POL tokens
       account: walletClient.account,
       chain: undefined, // Use wallet's current chain
     });
@@ -156,7 +156,7 @@ export async function createAndDepositOrder(
     // Parse common errors
     if (error.message?.includes("insufficient funds")) {
       throw new Error(
-        "Insufficient 0G tokens in wallet. Please add funds and try again."
+        "Insufficient POL tokens in wallet. Please add funds and try again."
       );
     }
     if (error.message?.includes("Order already exists")) {
@@ -408,13 +408,13 @@ export async function waitForTransaction(
         confirmations,
         timeout: TX_CONFIG.TIMEOUT_MS, // Use configured timeout
       });
-    
+
       console.log("Transaction confirmed:", {
         blockNumber: receipt.blockNumber,
         status: receipt.status,
         gasUsed: receipt.gasUsed.toString(),
       });
-    
+
       if (receipt.status === "reverted") {
         throw new Error("Transaction reverted");
       }

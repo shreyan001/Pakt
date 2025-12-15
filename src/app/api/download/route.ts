@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ZeroGStorageService } from '@/lib/0gStorageService';
+import { FilecoinStorageService } from '@/lib/filecoinStorageService';
 import * as fs from 'fs';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,11 +7,11 @@ import os from 'os';
 
 export async function POST(request: NextRequest) {
   try {
-    const { rootHash } = await request.json();
+    const { cid } = await request.json();
 
-    if (!rootHash) {
+    if (!cid) {
       return NextResponse.json(
-        { error: 'Root hash is required' },
+        { error: 'CID is required' },
         { status: 400 }
       );
     }
@@ -26,11 +26,11 @@ export async function POST(request: NextRequest) {
     const uniqueId = uuidv4();
     const outputPath = path.join(tempDir, `${uniqueId}.zip`);
 
-    // Initialize 0G Storage service
-    const storageService = new ZeroGStorageService();
+    // Initialize Filecoin Storage service
+    const storageService = new FilecoinStorageService();
 
     // Download the file
-    const downloadResult = await storageService.downloadFile(rootHash, outputPath);
+    const downloadResult = await storageService.downloadFile(cid, outputPath);
 
     if (!downloadResult.success) {
       return NextResponse.json(

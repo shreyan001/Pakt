@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Wallet, CheckCircle2, AlertCircle, Loader2, ExternalLink, Download, Clock } from 'lucide-react'
 import { useWalletClient, usePublicClient, useAccount } from 'wagmi'
 import { type Hash } from 'viem'
-import { createAndDepositOrder, waitForTransaction, approvePayment } from '@/lib/contracts/PaktClient'
+import { createAndDepositOrder, waitForTransaction, approvePayment } from '@/lib/contracts/pacterClient'
 import { generateOrderHash } from '@/lib/contracts/orderHash'
 import { getCurrentNetwork } from '@/lib/contracts/config'
 import {
@@ -194,7 +194,7 @@ function TimeLockedClientView({ contract, onContractUpdate }: TimeLockedProps) {
           <div className="flex justify-between">
             <span>Arbitration Contract</span>
             <a
-              href={`https://chainscan-galileo.0g.ai/address/${arbitrationAddress}`}
+              href={`https://chainscan-galileo.POL.ai/address/${arbitrationAddress}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-indigo-300 hover:text-indigo-200"
@@ -205,7 +205,7 @@ function TimeLockedClientView({ contract, onContractUpdate }: TimeLockedProps) {
           <div className="flex justify-between">
             <span>Vault Address</span>
             <a
-              href={`https://chainscan-galileo.0g.ai/address/${vaultAddress}`}
+              href={`https://chainscan-galileo.POL.ai/address/${vaultAddress}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-indigo-300 hover:text-indigo-200"
@@ -216,7 +216,7 @@ function TimeLockedClientView({ contract, onContractUpdate }: TimeLockedProps) {
           <div className="flex justify-between">
             <span>Escrow Contract</span>
             <a
-              href={`https://chainscan-galileo.0g.ai/address/${escrowAddress}`}
+              href={`https://chainscan-galileo.POL.ai/address/${escrowAddress}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-indigo-300 hover:text-indigo-200"
@@ -228,11 +228,11 @@ function TimeLockedClientView({ contract, onContractUpdate }: TimeLockedProps) {
             <>
               <div className="flex justify-between">
                 <span>Funded Amount</span>
-                <span>{summary.fundedAmountFormatted} 0G</span>
+                <span>{summary.fundedAmountFormatted} POL</span>
               </div>
               <div className="flex justify-between">
                 <span>Vault Balance</span>
-                <span>{summary.vaultBalanceFormatted} 0G</span>
+                <span>{summary.vaultBalanceFormatted} POL</span>
               </div>
               <div className="flex justify-between">
                 <span>Service Started</span>
@@ -260,7 +260,7 @@ function TimeLockedClientView({ contract, onContractUpdate }: TimeLockedProps) {
         </h3>
         <div className="rounded-lg border border-slate-700 bg-slate-900/40 p-4 space-y-3">
           <p className="text-xs text-slate-400">
-            Top-up the escrow balance. This mock action funds with 0.25 0G to simulate partial payments.
+            Top-up the escrow balance. This mock action funds with 0.25 POL to simulate partial payments.
           </p>
           <Button
             onClick={() => handleFund('0.25')}
@@ -273,7 +273,7 @@ function TimeLockedClientView({ contract, onContractUpdate }: TimeLockedProps) {
                 {fundStatus === 'pending' ? 'Confirm in wallet...' : 'Awaiting confirmation...'}
               </>
             ) : (
-              'Add 0.25 0G to Escrow'
+              'Add 0.25 POL to Escrow'
             )}
           </Button>
         </div>
@@ -296,13 +296,13 @@ function TimeLockedClientView({ contract, onContractUpdate }: TimeLockedProps) {
             {summary?.startTimestamp && summary.startTimestamp !== BigInt(0)
               ? 'Service Already Started'
               : startStatus === 'pending' || startStatus === 'confirming'
-              ? (
+                ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     {startStatus === 'pending' ? 'Confirm in wallet...' : 'Waiting for confirmation...'}
                   </>
                 )
-              : 'Start Service Clock'}
+                : 'Start Service Clock'}
           </Button>
         </div>
       </section>
@@ -383,7 +383,7 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
   const { address } = useAccount()
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
-  
+
   // Log when component receives updates
   useEffect(() => {
     console.log('📊 ClientView received contract update:', {
@@ -405,11 +405,11 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
   const isDepositCompleted = contract?.escrow?.deposit?.deposited === true
   const hasOrderHash = contract?.escrow?.deposit?.orderHash || contract?.escrow?.orderHash
 
-  // FOR TESTING: Use small amounts (0.1 0G for ₹1,00,000)
+  // FOR TESTING: Use small amounts (0.1 POL for ₹1,00,000)
   // In production, use actual contract amounts
-  const escrowAmount = '0.09' // 0.09 0G for testing
-  const storageFee = '0.01' // 0.01 0G for testing
-  const totalAmount = '0.1' // Total 0.1 0G
+  const escrowAmount = '0.09' // 0.09 POL for testing
+  const storageFee = '0.01' // 0.01 POL for testing
+  const totalAmount = '0.1' // Total 0.1 POL
   const inrAmount = '100000' // ₹1,00,000 for display
 
   // Get freelancer address
@@ -434,7 +434,7 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
       setIsGeneratingHash(true)
       try {
         console.log('Generating new order hash for:', { client: address, freelancer: freelancerAddress })
-        
+
         // Generate orderHash using the utility function
         const hash = generateOrderHash(address, freelancerAddress as `0x${string}`)
         console.log('Generated order hash:', hash)
@@ -547,7 +547,7 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
             stage: 'Escrow Deposited',
             timestamp: new Date().toISOString(),
             triggeredBy: 'client',
-            note: `Client deposited ${totalAmount} 0G tokens to escrow`,
+            note: `Client deposited ${totalAmount} POL tokens to escrow`,
             transactionHash: transactionHash,
           },
           {
@@ -576,12 +576,12 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
       const result = await response.json()
       console.log('Backend updated successfully:', result)
       console.log('Order hash saved:', orderHash)
-      
+
       // Reload the page to show updated status
       setTimeout(() => {
         window.location.reload()
       }, 2000) // Wait 2 seconds to show success message
-      
+
     } catch (err) {
       console.error('Error updating backend:', err)
       // Don't show error to user since deposit was successful
@@ -630,15 +630,15 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
             <div className="bg-slate-900/50 rounded-lg p-4 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">Project Payment</span>
-                <span className="text-white font-medium">{escrowAmount} 0G</span>
+                <span className="text-white font-medium">{escrowAmount} POL</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">Storage Fee</span>
-                <span className="text-white font-medium">{storageFee} 0G</span>
+                <span className="text-white font-medium">{storageFee} POL</span>
               </div>
               <div className="border-t border-slate-700 pt-3 flex justify-between">
                 <span className="text-white font-semibold">Total Deposit</span>
-                <span className="text-white font-bold text-lg">{totalAmount} 0G</span>
+                <span className="text-white font-bold text-lg">{totalAmount} POL</span>
               </div>
             </div>
 
@@ -717,7 +717,7 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
               ) : (
                 <>
                   <Wallet className="w-4 h-4 mr-2" />
-                  Deposit {totalAmount} 0G to Escrow
+                  Deposit {totalAmount} POL to Escrow
                 </>
               )}
             </Button>
@@ -757,7 +757,7 @@ function MilestoneClientView({ contract, onContractUpdate }: ClientViewProps) {
 function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any; orderHash: Hash | null; onUpdate?: () => void }) {
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
-  
+
   const [isApprovingPayment, setIsApprovingPayment] = useState(false)
   const [approvalStatus, setApprovalStatus] = useState<'idle' | 'pending' | 'confirming' | 'success' | 'error'>('idle')
   const [approvalTxHash, setApprovalTxHash] = useState<Hash | null>(null)
@@ -773,11 +773,11 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
   const storageHash = milestone?.deliverable?.storage?.storageHash || milestone?.verification?.storageHash || null
 
   // Determine current state
-  const currentState = !deliverableSubmitted 
-    ? 'awaiting_submission' 
-    : !agentVerified 
-    ? 'awaiting_verification' 
-    : 'ready_for_review'
+  const currentState = !deliverableSubmitted
+    ? 'awaiting_submission'
+    : !agentVerified
+      ? 'awaiting_verification'
+      : 'ready_for_review'
 
   // Handle payment approval
   async function handleApprovePayment() {
@@ -801,7 +801,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
 
       if (receipt.status === 'success') {
         setApprovalStatus('success')
-        
+
         // Update backend
         await updateBackendAfterApproval(hash)
       } else {
@@ -820,11 +820,11 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
   async function updateBackendAfterApproval(transactionHash: Hash) {
     try {
       console.log('📝 Updating backend after payment approval...')
-      
+
       const updateData = {
         id: contract.id,
         currentStage: 'Payment Approved',
-        milestones: contract.milestones.map((m: any, idx: number) => 
+        milestones: contract.milestones.map((m: any, idx: number) =>
           idx === 0 ? {
             ...m,
             status: 'COMPLETED', // Update milestone status
@@ -854,9 +854,9 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
         ],
         lastUpdated: new Date().toISOString()
       }
-      
+
       console.log('📤 Sending update:', JSON.stringify(updateData, null, 2))
-      
+
       const response = await fetch(`/api/contracts`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -868,7 +868,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
         console.error('❌ Backend update failed:', errorText)
         throw new Error('Failed to update backend')
       }
-      
+
       const result = await response.json()
       console.log('✅ Backend updated successfully:', result)
 
@@ -877,7 +877,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
         console.log('🔄 Triggering parent refresh...')
         onUpdate()
       }
-      
+
       // Reload page to show updated status
       setTimeout(() => {
         console.log('🔄 Reloading page...')
@@ -905,7 +905,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
               <Loader2 className="w-5 h-5 text-indigo-400 animate-spin" />
               <p className="text-slate-300">Waiting for freelancer to submit their work...</p>
             </div>
-            
+
             {/* Inactive URL display */}
             <div className="space-y-2 opacity-50">
               <p className="text-sm text-slate-400">Deployment URL</p>
@@ -940,7 +940,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
               <Loader2 className="w-5 h-5 text-indigo-400 animate-spin" />
               <p className="text-slate-300">AI agent is verifying the deliverable...</p>
             </div>
-            
+
             <Alert className="border-blue-500/50 bg-blue-500/10">
               <AlertCircle className="h-4 w-4 text-blue-400" />
               <AlertDescription className="text-blue-300">
@@ -955,7 +955,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
       {currentState === 'ready_for_review' && approvalStatus !== 'success' && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">Review Deliverable</h3>
-          
+
           {/* Verification Success */}
           <Alert className="border-green-500/50 bg-green-500/10">
             <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -972,7 +972,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
                 <div className="bg-slate-800 rounded p-3 border border-indigo-500/30">
                   <p className="text-indigo-300 text-sm break-all">{deploymentUrl}</p>
                 </div>
-                <Button 
+                <Button
                   onClick={() => window.open(deploymentUrl, '_blank')}
                   className="w-full bg-indigo-600 hover:bg-indigo-700"
                 >
@@ -981,7 +981,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
                 </Button>
               </div>
             )}
-            
+
             {/* Verification Info */}
             <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
               <div className="flex items-start gap-3">
@@ -991,24 +991,24 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
                   <ul className="text-sm text-slate-400 space-y-1">
                     <li>✓ Code authenticity verified</li>
                     <li>✓ Deployment connection confirmed</li>
-                    <li>✓ Files securely stored on 0G network</li>
+                    <li>✓ Files securely stored on POL network</li>
                   </ul>
                 </div>
               </div>
             </div>
-            
+
             {/* Note about source code access */}
             <Alert className="border-blue-500/50 bg-blue-500/10">
               <AlertCircle className="h-4 w-4 text-blue-400" />
               <AlertDescription className="text-blue-300 text-sm">
-                <strong>Source Code Access:</strong> After you approve payment, you'll receive a download link to access the complete source code from 0G decentralized storage.
+                <strong>Source Code Access:</strong> After you approve payment, you'll receive a download link to access the complete source code from POL decentralized storage.
               </AlertDescription>
             </Alert>
 
             {/* Comments/Feedback section */}
             <div className="space-y-2">
               <p className="text-sm text-slate-400">Your Feedback (Optional)</p>
-              <textarea 
+              <textarea
                 className="w-full bg-slate-800 border border-slate-700 rounded p-3 text-white text-sm min-h-[100px] focus:border-indigo-500 focus:outline-none"
                 placeholder="Add any comments or feedback about the deliverable..."
               />
@@ -1016,7 +1016,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
 
             {/* Action buttons */}
             <div className="flex gap-2 pt-4 border-t border-slate-700">
-              <Button 
+              <Button
                 onClick={handleApprovePayment}
                 disabled={isApprovingPayment}
                 className="flex-1 bg-green-600 hover:bg-green-700"
@@ -1034,7 +1034,7 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
                   </>
                 )}
               </Button>
-              <Button 
+              <Button
                 variant="outline"
                 className="flex-1 border-orange-500 text-orange-400 hover:bg-orange-500/10"
                 disabled={isApprovingPayment}
@@ -1076,15 +1076,15 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
             </AlertDescription>
           </Alert>
 
-          {/* Download Source Code from 0G */}
+          {/* Download Source Code from POL */}
           {storageHash && (
             <div className="bg-slate-900/50 rounded-lg p-6 space-y-4">
               <h4 className="text-lg font-semibold text-white">Download Project Files</h4>
-              
+
               <Alert className="border-indigo-500/50 bg-indigo-500/10">
                 <AlertCircle className="h-4 w-4 text-indigo-400" />
                 <AlertDescription className="text-indigo-300 text-sm">
-                  Source code is securely stored on 0G decentralized storage network.
+                  Source code is securely stored on POL decentralized storage network.
                 </AlertDescription>
               </Alert>
 
@@ -1094,23 +1094,23 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
                   <p className="text-slate-300 text-xs font-mono break-all">{storageHash}</p>
                 </div>
 
-                <Button 
+                <Button
                   onClick={async () => {
                     try {
                       setApprovalError(null)
-                      
+
                       // Use our new download API endpoint
                       const response = await fetch('/api/download', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ rootHash: storageHash })
                       })
-                      
+
                       if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.error || 'Download failed');
                       }
-                      
+
                       // Create a download link for the binary response
                       const blob = await response.blob();
                       const url = window.URL.createObjectURL(blob);
@@ -1123,17 +1123,17 @@ function PostDepositWorkflow({ contract, orderHash, onUpdate }: { contract: any;
                       document.body.removeChild(a);
                     } catch (err: any) {
                       console.error('Download error:', err);
-                      setApprovalError('Failed to download from 0G storage: ' + err.message);
+                      setApprovalError('Failed to download from POL storage: ' + err.message);
                     }
                   }}
                   className="w-full bg-indigo-600 hover:bg-indigo-700"
                 >
                   <Download className="w-4 h-4 mr-2" />
-                  Download Source Code from 0G
+                  Download Source Code from POL
                 </Button>
 
                 {deploymentUrl && (
-                  <Button 
+                  <Button
                     onClick={() => window.open(deploymentUrl, '_blank')}
                     variant="outline"
                     className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"

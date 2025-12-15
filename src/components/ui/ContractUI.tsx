@@ -47,16 +47,16 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
     // Placeholder for future implementation
     throw new Error("Deployment is no longer supported in this context");
   }
-  
+
   const saveContractData = async (deploymentData: any) => {
     try {
       console.log('saveContractData called with:', deploymentData);
-      
+
       if (!closestContract || !walletAddress) {
         console.error('Missing required data:', { closestContract: !!closestContract, walletAddress: !!walletAddress });
         return;
       }
-       
+
       const contractData = {
         name: closestContract.name || 'ReusableEscrow',
         contractAddress: deploymentData.contractAddress,
@@ -65,12 +65,12 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
         contractType: getContractType(closestContract.name),
         partyA: walletAddress,
         transactionHash: deploymentData.transactionHash,
-        networkId: '0G-testnet',
+        networkId: 'POL-testnet',
         description: getContractDescription(closestContract.name)
       }
-      
+
       console.log('Sending contract data to API:', contractData);
-       
+
       const response = await fetch('/api/contracts', {
         method: 'POST',
         headers: {
@@ -78,14 +78,14 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
         },
         body: JSON.stringify(contractData)
       })
-      
+
       console.log('API response status:', response.status);
       console.log('API response ok:', response.ok);
-       
+
       if (response.ok) {
-         const result = await response.json()
-         setContractId(result.contract.id)
-         console.log('Contract data saved successfully:', result.contract.id)
+        const result = await response.json()
+        setContractId(result.contract.id)
+        console.log('Contract data saved successfully:', result.contract.id)
       } else {
         // Handle non-200 responses
         const errorData = await response.text();
@@ -94,7 +94,7 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
           statusText: response.statusText,
           body: errorData
         });
-        
+
         // Try to parse as JSON for better error details
         try {
           const errorJson = JSON.parse(errorData);
@@ -111,14 +111,14 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
       });
     }
   }
-  
+
   const getContractType = (contractName: string): string => {
     if (contractName.includes('NFT')) return 'Digital Asset-to-NFT'
     if (contractName.includes('ERC20')) return 'Token-to-ERC20'
     if (contractName.includes('Asset')) return 'Digital Asset Exchange'
     return 'General Escrow'
   }
-  
+
   const getContractDescription = (contractName: string): string => {
     if (contractName.includes('NFT')) return 'Convert digital assets to NFT tokens'
     if (contractName.includes('ERC20')) return 'Convert assets to ERC20 tokens'
@@ -131,7 +131,7 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
   const toggleCode = () => {
     setShowCode(!showCode)
   }
- 
+
   // Placeholder values for now
   const roundedSecurityScore = 75;
   const roundedThreatScore = 25;
@@ -152,9 +152,9 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
             </Button>
           )}
         </div>
-        
 
-        
+
+
         {showCode && (
           <ScrollArea className="h-96 w-full border border-white/25 rounded-xl p-4 bg-white/3">
             <pre className="text-sm">
@@ -162,7 +162,7 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
             </pre>
           </ScrollArea>
         )}
-        
+
         {isDeployed && !showCode && (
           <div className="bg-white/5 backdrop-blur-md p-6 rounded-xl border border-[#4299e1] mb-6 shadow-lg">
             <div className="space-y-2">
@@ -173,19 +173,19 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
                   {deployedAddress}
                 </span>
               </p>
-              
+
               <div className="mt-4 space-y-2">
                 <p className="text-sm text-gray-300 mt-4 mb-3 font-medium">Manage your deployed contract:</p>
                 <div className="flex gap-2 flex-wrap">
-                  <Button 
-                    onClick={() => window.open(`https://chainscan-newton.0g.ai/address/${deployedAddress}`, '_blank')} 
+                  <Button
+                    onClick={() => window.open(`https://chainscan-newton.POL.ai/address/${deployedAddress}`, '_blank')}
                     className="bg-gradient-to-r from-[#4299e1] to-[#3182ce] text-gray-100 rounded-xl hover:from-[#3182ce] hover:to-[#2b6cb0] transition-all duration-300 shadow-lg"
                   >
-                    Check on 0G Explorer
+                    Check on POL Explorer
                   </Button>
                   {contractId && (
-                    <Button 
-                      onClick={() => window.open(`/contract/${contractId}`, '_blank')} 
+                    <Button
+                      onClick={() => window.open(`/contract/${contractId}`, '_blank')}
                       className="bg-gradient-to-r from-[#38a169] to-[#2f855a] text-gray-100 rounded-xl hover:from-[#2f855a] hover:to-[#276749] transition-all duration-300 shadow-lg"
                     >
                       Open Contract Page
@@ -197,12 +197,12 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
           </div>
         )}
       </div>
-      
+
       <div className="bg-gradient-to-r from-[#4299e1] to-[#3182ce] text-white p-4 rounded-b-xl">
         {!isDeployed ? (
           <div className="space-y-4 w-full">
-            <Button 
-              onClick={useHandleDeploy} 
+            <Button
+              onClick={useHandleDeploy}
               disabled={isLoading || !walletAddress}
               className="w-full bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-semibold py-2 px-4 rounded-xl"
             >
@@ -217,22 +217,22 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
                 'Deploy Contract'
               )}
             </Button>
-        </div>
+          </div>
         ) : (
           <div className="flex justify-between items-center w-full">
             <span className="text-sm font-medium">Contract deployed successfully!</span>
             <a
-              href={`https://chainscan-newton.0g.ai/address/${deployedAddress}`}
+              href={`https://chainscan-newton.POL.ai/address/${deployedAddress}`}
               target="_blank"
               rel="noopener noreferrer"
               className="bg-white/10 text-white px-4 py-2 rounded-xl hover:bg-white/20 hover:text-white transition-colors duration-200 flex items-center"
             >
-              View on 0G Explorer <ExternalLink className="w-4 h-4 ml-2" />
+              View on POL Explorer <ExternalLink className="w-4 h-4 ml-2" />
             </a>
           </div>
         )}
       </div>
-      
+
       {/* Show SolidityScan Results */}
       {closestContract && (
         <div className="p-4 border-t border-white/25">
@@ -268,8 +268,8 @@ export function SmartContractDisplay({ contractCode }: { contractCode: string })
               <p className="text-center mt-2 text-sm">Threat Score</p>
             </div>
           </div>
-          <Button 
-            onClick={() => setShowScanComments(!showScanComments)} 
+          <Button
+            onClick={() => setShowScanComments(!showScanComments)}
             className="mb-4 bg-white/5 text-gray-200 border border-white/25 hover:bg-[#4299e1] hover:text-white hover:border-[#4299e1] transition-colors duration-200 w-full rounded-xl"
           >
             {showScanComments ? 'Hide' : 'Show'} Scan Comments

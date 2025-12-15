@@ -23,28 +23,28 @@ export interface NetworkConfig {
 }
 
 /**
- * 0G Network configurations
+ * Polygon Network configurations
  */
 export const NETWORKS: Record<string, NetworkConfig> = {
   testnet: {
-    chainId: 16600,
-    name: '0G Newton Testnet',
-    rpcUrl: process.env.NEXT_PUBLIC_ZEROG_RPC_URL || 'https://evmrpc-testnet.0g.ai',
-    blockExplorer: 'https://chainscan-galileo.0g.ai',
+    chainId: 80002,
+    name: 'Polygon Amoy Testnet',
+    rpcUrl: process.env.NEXT_PUBLIC_POLYGON_RPC_URL || 'https://rpc-amoy.polygon.technology/',
+    blockExplorer: 'https://amoy.polygonscan.com/',
     nativeCurrency: {
-      name: '0G',
-      symbol: '0G',
+      name: 'MATIC',
+      symbol: 'MATIC',
       decimals: 18,
     },
   },
   mainnet: {
-    chainId: 16600, // Update when mainnet is live
-    name: '0G Mainnet',
-    rpcUrl: process.env.NEXT_PUBLIC_ZEROG_RPC_URL || 'https://evmrpc.0g.ai',
-    blockExplorer: 'https://chainscan-galileo.0g.ai',
+    chainId: 137,
+    name: 'Polygon Mainnet',
+    rpcUrl: process.env.NEXT_PUBLIC_POLYGON_RPC_URL || 'https://polygon-rpc.com/',
+    blockExplorer: 'https://polygonscan.com/',
     nativeCurrency: {
-      name: '0G',
-      symbol: '0G',
+      name: 'MATIC',
+      symbol: 'MATIC',
       decimals: 18,
     },
   },
@@ -99,8 +99,8 @@ export const FEE_CONFIG = {
  * Currency conversion configuration
  */
 export const CURRENCY_CONFIG = {
-  DEFAULT_INR_TO_0G_RATE: 85.0, // Default exchange rate (1 0G = 85 INR)
-  DECIMALS: 18, // 0G token decimals
+  DEFAULT_INR_TO_MATIC_RATE: 85.0, // Default exchange rate (1 MATIC = 85 INR)
+  DECIMALS: 18, // MATIC token decimals
   DISPLAY_DECIMALS: 4, // Decimals to show in UI
 } as const;
 

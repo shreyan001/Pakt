@@ -1,7 +1,7 @@
 /**
  * Contract Service
  * 
- * Handles contract generation, 0G Compute processing, and backend upload
+ * Handles contract generation and backend upload for Polygon network
  */
 
 import { CollectedContractData, InferenceInput } from '@/lib/types';
@@ -93,10 +93,10 @@ function prepareBackendData(
     name: `${collectedData.projectInfo.projectName} Contract`,
     projectType: 'freelance_project',
     description: collectedData.projectInfo.projectDescription,
-    
+
     currentStage: 'Signatures Pending',
     flowType: 'execution',
-    
+
     jurisdiction: {
       country: 'India',
       countryCode: 'IN',
@@ -109,7 +109,7 @@ function prepareBackendData(
       ],
       timezone: 'Asia/Kolkata'
     },
-    
+
     parties: {
       client: {
         name: collectedData.clientInfo.clientName,
@@ -135,7 +135,7 @@ function prepareBackendData(
         }
       }
     },
-    
+
     signatures: {
       client: {
         signed: false,
@@ -149,7 +149,7 @@ function prepareBackendData(
       },
       bothSigned: false
     },
-    
+
     escrow: {
       amounts: {
         inr: {
@@ -158,37 +158,37 @@ function prepareBackendData(
           exchangeRateAt: now,
           exchangeRate: '1.00'
         },
-        '0G': {
+        'matic': {
           totalAmount: collectedData.financialInfo.zeroGEquivalent.toString(),
-          currency: '0G',
-          network: '0g-testnet'
+          currency: 'MATIC',
+          network: 'polygon-amoy-testnet'
         }
       },
       contractAddress: '0x0000000000000000000000000000000000000000',
-      
+
       deposit: {
         deposited: false,
         depositedAmount: '0',
         depositedAt: null,
         transactionHash: null
       },
-      
+
       fees: {
         platformFee: {
           inr: collectedData.financialInfo.platformFees.toString(),
-          zeroG: Math.floor(collectedData.financialInfo.platformFees / 10).toString()
+          matic: Math.floor(collectedData.financialInfo.platformFees / 10).toString()
         },
         storageFee: {
           inr: collectedData.financialInfo.escrowFee.toString(),
-          zeroG: Math.floor(collectedData.financialInfo.escrowFee / 10).toString()
+          matic: Math.floor(collectedData.financialInfo.escrowFee / 10).toString()
         },
         totalFees: {
           inr: (collectedData.financialInfo.platformFees + collectedData.financialInfo.escrowFee).toString(),
-          zeroG: Math.floor((collectedData.financialInfo.platformFees + collectedData.financialInfo.escrowFee) / 10).toString()
+          matic: Math.floor((collectedData.financialInfo.platformFees + collectedData.financialInfo.escrowFee) / 10).toString()
         }
       }
     },
-    
+
     storage: {
       contractDocument: {
         rootHash: contractHash,
@@ -198,18 +198,18 @@ function prepareBackendData(
         fileSize: `${Math.ceil(contractText.length / 1024)}KB`
       }
     },
-    
+
     projectDetails: {
       deliverables: collectedData.projectInfo.deliverables,
       timeline: collectedData.projectInfo.timeline,
       startDate: now.split('T')[0],
       endDate: calculateEndDate(collectedData.projectInfo.timeline)
     },
-    
+
     legalContract: {
       contractText,
       generatedAt: now,
-      generatedBy: verificationProof ? '0G_Compute_TEE' : 'Pakt_Generator',
+      generatedBy: verificationProof ? 'POL_Compute_TEE' : 'Pakt_Generator',
       storageRootHash: contractHash,
       verificationProof: verificationProof || {
         type: 'NONE',
@@ -217,16 +217,16 @@ function prepareBackendData(
         timestamp: now
       }
     },
-    
+
     milestones: [],
     currentMilestone: null,
-    
+
+    // Agent info (for AI verification - no longer uses iNFT)
     agentInfo: {
-      iNFTContractAddress: '0x50AfCE3f4C6235bAbFbCD31C8Dd1693E99046705',
-      iNFTTokenId: '0',
+      verificationEnabled: true,
       lastAction: null
     },
-    
+
     stageHistory: [
       {
         stage: 'Information Collection',
@@ -247,7 +247,7 @@ function prepareBackendData(
         note: 'Contract created and awaiting signatures'
       }
     ],
-    
+
     shareableLink: '',
     createdAt: now,
     lastUpdated: now,
@@ -260,14 +260,14 @@ function prepareBackendData(
  */
 function calculateEndDate(timeline: string): string {
   const now = new Date();
-  
+
   // Parse timeline (e.g., "2 weeks", "30 days", "1 month")
   const match = timeline.match(/(\d+)\s*(day|week|month)/i);
-  
+
   if (match) {
     const value = parseInt(match[1]);
     const unit = match[2].toLowerCase();
-    
+
     if (unit.startsWith('day')) {
       now.setDate(now.getDate() + value);
     } else if (unit.startsWith('week')) {
@@ -279,7 +279,7 @@ function calculateEndDate(timeline: string): string {
     // Default to 30 days
     now.setDate(now.getDate() + 30);
   }
-  
+
   return now.toISOString().split('T')[0];
 }
 
@@ -289,7 +289,7 @@ function calculateEndDate(timeline: string): string {
 async function uploadToBackend(contractData: any): Promise<string> {
   try {
     console.log('Uploading contract to backend...', contractData.id);
-    
+
     const response = await fetch('/api/contracts', {
       method: 'POST',
       headers: {
@@ -306,11 +306,11 @@ async function uploadToBackend(contractData: any): Promise<string> {
 
     const result = await response.json();
     console.log('Contract uploaded to backend successfully:', result);
-    
+
     if (!result.success) {
       throw new Error('Backend returned success: false');
     }
-    
+
     return contractData.id;
   } catch (error) {
     console.error('Backend upload error:', error);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ethers } from 'ethers'
-import { Pakt_ABI } from '@/lib/contracts/PaktABI'
+import { Pakt_ABI } from '@/lib/contracts/pacterABI'
 
 // GitHub verification functions
 async function verifyGitHubDeployment(githubUrl: string, deploymentUrl?: string) {
@@ -10,10 +10,10 @@ async function verifyGitHubDeployment(githubUrl: string, deploymentUrl?: string)
     if (!match) {
       throw new Error('Invalid GitHub URL format')
     }
-    
+
     const [, owner, repo] = match
     const cleanRepo = repo.replace(/\.git$/, '')
-    
+
     // Basic GitHub API check
     const repoResponse = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}`, {
       headers: {
@@ -21,13 +21,13 @@ async function verifyGitHubDeployment(githubUrl: string, deploymentUrl?: string)
         'Accept': 'application/vnd.github.v3+json'
       }
     })
-    
+
     if (!repoResponse.ok) {
       throw new Error('Repository not found or not accessible')
     }
-    
+
     const repoData = await repoResponse.json()
-    
+
     // Get latest commit
     const commitsResponse = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/commits`, {
       headers: {
@@ -35,10 +35,10 @@ async function verifyGitHubDeployment(githubUrl: string, deploymentUrl?: string)
         'Accept': 'application/vnd.github.v3+json'
       }
     })
-    
+
     const commits = await commitsResponse.json()
     const latestCommit = commits[0]
-    
+
     // Basic deployment verification (if URL provided)
     let deploymentVerified = true
     if (deploymentUrl) {
@@ -49,7 +49,7 @@ async function verifyGitHubDeployment(githubUrl: string, deploymentUrl?: string)
         deploymentVerified = false
       }
     }
-    
+
     return {
       verified: true,
       repoInfo: {
@@ -71,7 +71,7 @@ async function verifyGitHubDeployment(githubUrl: string, deploymentUrl?: string)
   }
 }
 
-// Simulate 0G storage upload (simplified)
+// Store repository metadata (simplified - can use Filecoin in future)
 async function storeRepositoryMetadata(githubUrl: string, repoInfo: any) {
   try {
     // Create metadata object
@@ -81,12 +81,12 @@ async function storeRepositoryMetadata(githubUrl: string, repoInfo: any) {
       verifiedAt: new Date().toISOString(),
       verificationAgent: 'Pakt-AI-Agent'
     }
-    
-    // In production, this would upload to 0G storage
+
+    // In production, this would upload to POL storage
     // For now, we'll simulate with a hash
     const metadataString = JSON.stringify(metadata)
     const hash = ethers.keccak256(ethers.toUtf8Bytes(metadataString))
-    
+
     return {
       success: true,
       storageHash: hash,
@@ -104,18 +104,18 @@ async function storeRepositoryMetadata(githubUrl: string, repoInfo: any) {
 async function callAgentVerification(orderHash: string) {
   try {
     const privateKey = process.env.AGENT_PRIVATE_KEY!
-    const rpcUrl = process.env.ZEROG_RPC_URL || 'https://evmrpc-testnet.0g.ai'
+    const rpcUrl = process.env.POLYGON_RPC_URL || 'https://rpc-amoy.polygon.technology/'
     const contractAddress = process.env.NEXT_PUBLIC_Pakt_CONTRACT_ADDRESS!
-    
+
     const provider = new ethers.JsonRpcProvider(rpcUrl)
     const wallet = new ethers.Wallet(privateKey, provider)
-    
+
     const contract = new ethers.Contract(contractAddress, Pakt_ABI, wallet)
-    
+
     // Call verifyDeliverable
     const tx = await contract.verifyDeliverable(orderHash)
     const receipt = await tx.wait()
-    
+
     return {
       success: true,
       transactionHash: receipt.hash,
@@ -148,9 +148,9 @@ export async function POST(request: NextRequest) {
     if (!contractResponse.ok) {
       throw new Error('Contract not found')
     }
-    
+
     const contract = await contractResponse.json()
-    
+
     // Verify freelancer
     if (contract.parties?.freelancer?.walletAddress?.toLowerCase() !== freelancerAddress.toLowerCase()) {
       return NextResponse.json(
@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
 
     // Step 1: Verify GitHub repository
     const verificationResult = await verifyGitHubDeployment(githubUrl, deploymentUrl)
-    
+
     if (!verificationResult.verified) {
       return NextResponse.json(
         { error: verificationResult.message },
@@ -169,9 +169,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Step 2: Store metadata on 0G (simulated)
+    // Step 2: Store metadata on POL (simulated)
     const storageResult = await storeRepositoryMetadata(githubUrl, verificationResult.repoInfo)
-    
+
     if (!storageResult.success) {
       return NextResponse.json(
         { error: 'Failed to store verification data' },
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         id: contractId,
         currentStage: 'AI Verification',
-        milestones: contract.milestones.map((m: any, idx: number) => 
+        milestones: contract.milestones.map((m: any, idx: number) =>
           idx === 0 ? {
             ...m,
             deliverable: {
@@ -224,7 +224,7 @@ export async function POST(request: NextRequest) {
 
     // Step 4: Call smart contract verification (async)
     const orderHash = contract.escrow?.orderHash || contract.escrow?.deposit?.orderHash
-    
+
     if (orderHash) {
       // Run verification in background
       callAgentVerification(orderHash).then(async (result) => {
@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             id: contractId,
             currentStage: result.success ? 'Client Review' : 'AI Verification',
-            milestones: contract.milestones.map((m: any, idx: number) => 
+            milestones: contract.milestones.map((m: any, idx: number) =>
               idx === 0 ? {
                 ...m,
                 verification: {

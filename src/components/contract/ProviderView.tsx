@@ -135,7 +135,7 @@ export default function ProviderView({ contract, onContractUpdate }: ProviderVie
 
     try {
       const txHash = await renewTimeLockedEscrow(walletClient, escrowAddress, {
-        amount0G: '0.02',
+        amountPOL: '0.02',
         extraSeconds: BigInt(3600),
       })
       setRenewStatus('confirming')
@@ -204,7 +204,7 @@ export default function ProviderView({ contract, onContractUpdate }: ProviderVie
             <div className="flex justify-between">
               <span>Escrow Contract</span>
               <a
-                href={`https://chainscan-galileo.0g.ai/address/${escrowAddress}`}
+                href={`https://chainscan-galileo.POL.ai/address/${escrowAddress}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-indigo-300 hover:text-indigo-200"
@@ -215,7 +215,7 @@ export default function ProviderView({ contract, onContractUpdate }: ProviderVie
             <div className="flex justify-between">
               <span>Vault Address</span>
               <a
-                href={`https://chainscan-galileo.0g.ai/address/${vaultAddress}`}
+                href={`https://chainscan-galileo.POL.ai/address/${vaultAddress}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-indigo-300 hover:text-indigo-200"
@@ -227,11 +227,11 @@ export default function ProviderView({ contract, onContractUpdate }: ProviderVie
               <>
                 <div className="flex justify-between">
                   <span>Funded Amount</span>
-                  <span>{escrowSummary.fundedAmountFormatted} 0G</span>
+                  <span>{escrowSummary.fundedAmountFormatted} POL</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Vault Balance</span>
-                  <span>{escrowSummary.vaultBalanceFormatted} 0G</span>
+                  <span>{escrowSummary.vaultBalanceFormatted} POL</span>
                 </div>
               </>
             )}
@@ -245,7 +245,7 @@ export default function ProviderView({ contract, onContractUpdate }: ProviderVie
           <div className="rounded-lg border border-slate-700 bg-slate-900/40 p-4 space-y-3">
             <div className="flex justify-between text-xs text-slate-400">
               <span>Ready to claim</span>
-              <span className="text-white font-semibold">{claimableDisplay} 0G</span>
+              <span className="text-white font-semibold">{claimableDisplay} POL</span>
             </div>
             <p className="text-xs text-slate-400">
               Claim pro-rata payment accrued since the last withdrawal. Each claim includes the 1% vault bonus.

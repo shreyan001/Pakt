@@ -124,7 +124,7 @@ export async function getMilestoneEscrowSummary(
 }
 
 /**
- * Fetch all milestone structs and format their 0G amounts for UI usage.
+ * Fetch all milestone structs and format their POL amounts for UI usage.
  */
 export async function getMilestones(
   publicClient: PublicClient,
@@ -169,14 +169,14 @@ export async function getMilestones(
 }
 
 /**
- * Client-side: fund the escrow by depositing native 0G.
+ * Client-side: fund the escrow by depositing native POL.
  */
 export async function fundMilestoneEscrow(
   walletClient: WalletClient,
   escrowAddress: Address,
-  amount0G: string
+  amountPOL: string
 ): Promise<Hash> {
-  const value = parseEther(amount0G);
+  const value = parseEther(amountPOL);
   return walletClient.writeContract({
     address: escrowAddress,
     abi: MILESTONE_ESCROW_ABI,
@@ -193,9 +193,9 @@ export async function fundMilestoneEscrow(
 export async function addMilestone(
   walletClient: WalletClient,
   escrowAddress: Address,
-  params: { amount0G: string; description: string }
+  params: { amountPOL: string; description: string }
 ): Promise<Hash> {
-  const amountWei = parseEther(params.amount0G);
+  const amountWei = parseEther(params.amountPOL);
   return walletClient.writeContract({
     address: escrowAddress,
     abi: MILESTONE_ESCROW_ABI,

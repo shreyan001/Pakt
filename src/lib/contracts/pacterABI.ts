@@ -3,7 +3,7 @@
  * PaktEscrowV2 Contract ABI and Type Definitions
  * 
  * This file contains the complete ABI for the PaktEscrowV2 smart contract
- * deployed on the 0G blockchain, along with TypeScript type definitions.
+ * deployed on the POL blockchain, along with TypeScript type definitions.
  */
 
 export const Pakt_ABI = [
@@ -130,7 +130,7 @@ export const Pakt_ABI = [
   },
   {
     type: 'function',
-    name: 'transfer0GStorageFees',
+    name: 'transferPOLStorageFees',
     inputs: [{ name: 'amount', type: 'uint256', internalType: 'uint256' }],
     outputs: [],
     stateMutability: 'nonpayable',

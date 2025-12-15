@@ -28,17 +28,17 @@ export default function HeroSection() {
           <div className="text-center mb-16">
             <Badge className="mb-6 bg-gradient-to-r from-[#4299e1] to-[#3182ce] text-white border-0 px-4 py-2">
               <Zap className="w-4 h-4 mr-2" />
-              Powered by 0G Compute & Storage
+              Powered by POL Compute & Storage
             </Badge>
-            
+
             <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-[#ffd700] to-[#4299e1] bg-clip-text text-transparent">
               Pakt
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-gray-300 mb-4 font-mono">
               Programmable Trust Protocol
             </p>
-            
+
             <p className="text-lg text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed">
               Autonomous agreements. Verifiable enforcement. No intermediaries.
               <br />
@@ -46,15 +46,15 @@ export default function HeroSection() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Button 
+              <Button
                 onClick={handleCreateContract}
                 className="bg-gradient-to-r from-[#4299e1] to-[#3182ce] hover:from-[#ffd700] hover:to-[#f6ad55] hover:text-black text-white border-0 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 flex items-center space-x-2 shadow-lg"
               >
                 <span>Create Contract</span>
                 <ArrowRight className="w-5 h-5" />
               </Button>
-              
-              <Button 
+
+              <Button
                 variant="outline"
                 className="border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg rounded-xl"
               >

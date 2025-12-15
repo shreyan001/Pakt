@@ -64,9 +64,9 @@ ${data.projectInfo.deliverables.map((d, i) => `   ${i + 1}. ${d}`).join('\n')}
    - Escrow Service Fee (0.5%): ₹${data.financialInfo.feeBreakdown.escrowFee.toLocaleString('en-IN')}
    - Total Escrow Amount: ₹${data.financialInfo.feeBreakdown.total.toLocaleString('en-IN')}
 
-2.3 Payment Method: The payment shall be held in escrow using 0G blockchain technology and released upon successful completion and verification of deliverables.
+2.3 Payment Method: The payment shall be held in escrow using POL blockchain technology and released upon successful completion and verification of deliverables.
 
-2.4 0G Token Equivalent: ${data.financialInfo.zeroGEquivalent} 0G tokens (for blockchain execution)
+2.4 POL Token Equivalent: ${data.financialInfo.zeroGEquivalent} POL tokens (for blockchain execution)
 
 3. ESCROW TERMS
 
@@ -203,7 +203,7 @@ ${data.projectInfo.deliverables.map((d, i) => `   ${i + 1}. ${d}`).join('\n')}
 
 19. BLOCKCHAIN EXECUTION
 
-19.1 This Agreement is executed through the Pakt platform using 0G blockchain technology.
+19.1 This Agreement is executed through the Pakt platform using POL blockchain technology.
 
 19.2 Smart contract address and transaction details shall be recorded upon escrow deposit.
 

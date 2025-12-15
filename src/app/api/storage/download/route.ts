@@ -1,53 +1,53 @@
-// Download files from 0G Storage
+// Download files from Filecoin/IPFS Storage
 import { NextRequest, NextResponse } from 'next/server'
-import { ZeroGStorageService } from '@/lib/0gStorageService'
+import { FilecoinStorageService } from '@/lib/filecoinStorageService'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
 
 export async function POST(request: NextRequest) {
   try {
-    const { storageHash } = await request.json()
-    
-    if (!storageHash) {
+    const { cid } = await request.json()
+
+    if (!cid) {
       return NextResponse.json(
-        { error: 'Storage hash is required' },
+        { error: 'CID is required' },
         { status: 400 }
       )
     }
-    
-    console.log('📥 Downloading from 0G Storage:', storageHash)
-    
-    // Initialize 0G Storage Service
-    const storageService = new ZeroGStorageService()
-    
+
+    console.log('📥 Downloading from Filecoin/IPFS:', cid)
+
+    // Initialize Filecoin Storage Service
+    const storageService = new FilecoinStorageService()
+
     // Create temp download path
     const tempDir = os.tmpdir()
     const downloadPath = path.join(tempDir, `Pakt_download_${Date.now()}.json`)
-    
+
     // Download file
-    const downloadResult = await storageService.downloadFile(storageHash, downloadPath)
-    
+    const downloadResult = await storageService.downloadFile(cid, downloadPath)
+
     if (!downloadResult.success) {
       return NextResponse.json(
         { error: downloadResult.error || 'Download failed' },
         { status: 500 }
       )
     }
-    
+
     // Read the downloaded file
     const fileContent = fs.readFileSync(downloadPath, 'utf-8')
     const metadata = JSON.parse(fileContent)
-    
+
     // Clean up temp file
     fs.unlinkSync(downloadPath)
-    
+
     console.log('✅ Download successful!')
-    
+
     return NextResponse.json({
       success: true,
       metadata,
-      storageHash
+      cid
     })
   } catch (error: any) {
     console.error('❌ Download error:', error)

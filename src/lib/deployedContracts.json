@@ -4,7 +4,7 @@
     "bytecode": "0x608060405234801561001057600080fd5b50",
     "name": "TestEscrow",
     "contractAddress": "0x1234567890123456789012345678901234567890",
-    "contractType": "0G-to-NFT",
+    "contractType": "POL-to-NFT",
     "abi": [],
     "description": "Test escrow contract",
     "partyA": "0xabcdefabcdefabcdefabcdefabcdefabcdefabcdef",
@@ -286,7 +286,7 @@
     "contractType": "Token-to-ERC20",
     "partyA": "0xB8a2ef8c4b4517311Ad8c8801f8abF853862e7b1",
     "transactionHash": "",
-    "networkId": "0G-testnet",
+    "networkId": "POL-testnet",
     "description": "Convert assets to ERC20 tokens",
     "deployedAt": "2025-09-03T16:58:52.020Z",
     "partyASignatureStatus": true,
@@ -298,8 +298,8 @@
     "partyB": "0xE0159CBaf2ebDE108a5f7FfF3536b855ba59F8C7"
   },
   {
-    "id": "0g2nftescrow-1756920369370",
-    "name": "0G2NFTEscrow",
+    "id": "POL2nftescrow-1756920369370",
+    "name": "POL2NFTEscrow",
     "contractAddress": "0x68dde7a0192c9c5c1e0a71cc556579a67458df0d",
     "abi": [
       {
@@ -566,7 +566,7 @@
     "contractType": "Digital Asset-to-NFT",
     "partyA": "0x83CDBbA8359aAc6a25ACb70eb67dcF0E5eB2c607",
     "transactionHash": "",
-    "networkId": "0G-testnet",
+    "networkId": "POL-testnet",
     "description": "Convert digital assets to NFT tokens",
     "deployedAt": "2025-09-03T17:26:09.370Z",
     "partyASignatureStatus": true,
@@ -578,8 +578,8 @@
     "partyB": "0xE0159CBaf2ebDE108a5f7FfF3536b855ba59F8C7"
   },
   {
-    "id": "0g2nftescrow-1756923171846",
-    "name": "0G2NFTEscrow",
+    "id": "POL2nftescrow-1756923171846",
+    "name": "POL2NFTEscrow",
     "contractAddress": "0x5c2c88e2fb60da3e642be035a853c2e9708c79de",
     "abi": [
       {
@@ -846,15 +846,15 @@
     "contractType": "Digital Asset-to-NFT",
     "partyA": "0xB8a2ef8c4b4517311Ad8c8801f8abF853862e7b1",
     "transactionHash": "",
-    "networkId": "0G-testnet",
+    "networkId": "POL-testnet",
     "description": "Convert digital assets to NFT tokens",
     "deployedAt": "2025-09-03T18:12:51.846Z",
     "partyASignatureStatus": false,
     "partyBSignatureStatus": false
   },
   {
-    "id": "0g2nftescrow-1756924535661",
-    "name": "0G2NFTEscrow",
+    "id": "POL2nftescrow-1756924535661",
+    "name": "POL2NFTEscrow",
     "contractAddress": "0x1c50db6a9e4323233678e9462c5be53825b3616e",
     "abi": [
       {
@@ -1121,15 +1121,15 @@
     "contractType": "Digital Asset-to-NFT",
     "partyA": "0xB8a2ef8c4b4517311Ad8c8801f8abF853862e7b1",
     "transactionHash": "",
-    "networkId": "0G-testnet",
+    "networkId": "POL-testnet",
     "description": "Convert digital assets to NFT tokens",
     "deployedAt": "2025-09-03T18:35:35.662Z",
     "partyASignatureStatus": false,
     "partyBSignatureStatus": false
   },
   {
-    "id": "0g2nftescrow-1756926671600",
-    "name": "0G2NFTEscrow",
+    "id": "POL2nftescrow-1756926671600",
+    "name": "POL2NFTEscrow",
     "contractAddress": "0x09dc6b2a88a11466d049ba98dc75887f221abb83",
     "abi": [
       {
@@ -1396,15 +1396,15 @@
     "contractType": "Digital Asset-to-NFT",
     "partyA": "0xB8a2ef8c4b4517311Ad8c8801f8abF853862e7b1",
     "transactionHash": "",
-    "networkId": "0G-testnet",
+    "networkId": "POL-testnet",
     "description": "Convert digital assets to NFT tokens",
     "deployedAt": "2025-09-03T19:11:11.606Z",
     "partyASignatureStatus": false,
     "partyBSignatureStatus": false
   },
   {
-    "id": "0g2nftescrow-1756928470200",
-    "name": "0G2NFTEscrow",
+    "id": "POL2nftescrow-1756928470200",
+    "name": "POL2NFTEscrow",
     "contractAddress": "0xac35423a4cffa55fd401cfce6e8c61ab1c08c1c6",
     "abi": [
       {
@@ -1671,7 +1671,7 @@
     "contractType": "Digital Asset-to-NFT",
     "partyA": "0xB8a2ef8c4b4517311Ad8c8801f8abF853862e7b1",
     "transactionHash": "",
-    "networkId": "0G-testnet",
+    "networkId": "POL-testnet",
     "description": "Convert digital assets to NFT tokens",
     "deployedAt": "2025-09-03T19:41:10.200Z",
     "partyASignatureStatus": true,
@@ -1680,8 +1680,8 @@
     "partyASignature": "0x51cca55ad06550610314d2123d8330b6ea9bdcd5aef1fcaa7fb278d60bd7c4155f35b56971dd505a5032f973c55f72fa7605daaed770045011c4d44e443d32dc1c"
   },
   {
-    "id": "0g2nftescrow-1756928711801",
-    "name": "0G2NFTEscrow",
+    "id": "POL2nftescrow-1756928711801",
+    "name": "POL2NFTEscrow",
     "contractAddress": "0x9c38e1045cf3b499199075bbc4e438e4faf900ab",
     "abi": [
       {
@@ -1948,7 +1948,7 @@
     "contractType": "Digital Asset-to-NFT",
     "partyA": "0x83CDBbA8359aAc6a25ACb70eb67dcF0E5eB2c607",
     "transactionHash": "",
-    "networkId": "0G-testnet",
+    "networkId": "POL-testnet",
     "description": "Convert digital assets to NFT tokens",
     "deployedAt": "2025-09-03T19:45:11.801Z",
     "partyASignatureStatus": true,
