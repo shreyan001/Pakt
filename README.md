@@ -29,6 +29,7 @@ Wave 4 introduces major production features to Pakt, focusing on **automated Git
 - **Network:** Polygon Amoy Testnet (Chain ID: 80002)
 - **Explorer:** https://amoy.polygonscan.com/
 - **Live Demo:** [https://pakt-v1.vercel.app](https://pakt-v1.vercel.app)
+- **Demo Video:** [Youtube](https://youtu.be/Dzx3ZVkWHl4)
 
 ---
 
