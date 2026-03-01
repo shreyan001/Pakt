@@ -8,12 +8,11 @@ import { z } from "zod";
 const model = new ChatGoogle({
     model: "gemini-2.5-flash",
     platformType: "gcp",
-    // @ts-ignore - Required for Vertex Express Mode
+    // Required for Vertex Express Mode
     projectId: process.env.GOOGLE_CLOUD_PROJECT,
-    // @ts-ignore
     location: process.env.GOOGLE_CLOUD_LOCATION ?? "us-central1",
     apiKey: process.env.GOOGLE_API_KEY,
-});
+} as any);
 
 // **Zod Schema for Information Extraction**
 export const UserInputExtractionSchema = z.object({
@@ -436,9 +435,10 @@ Connected Wallet: {wallet_address}`;
 
             console.log("Structured extraction result:", JSON.stringify(structuredResponse, null, 2));
 
-            if (structuredResponse && typeof structuredResponse === 'object' && structuredResponse.extractedInfo) {
-                extractedData = structuredResponse;
-                const extracted = structuredResponse.extractedInfo;
+            const responseData = structuredResponse as any;
+            if (responseData && typeof responseData === 'object' && responseData.extractedInfo) {
+                extractedData = responseData;
+                const extracted = responseData.extractedInfo;
 
                 // Update project info - preserve existing data
                 if (extracted.projectName || extracted.projectDescription || extracted.timeline || extracted.deliverables) {
