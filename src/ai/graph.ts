@@ -2,13 +2,17 @@ import { StateGraph } from "@langchain/langgraph";
 import { BaseMessage, AIMessage, HumanMessage } from "@langchain/core/messages";
 import { START, END } from "@langchain/langgraph";
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
-import { ChatGroq } from "@langchain/groq";
+import { ChatGoogle } from "@langchain/google";
 import { z } from "zod";
 
-const model = new ChatGroq({
-    modelName: "llama-3.3-70b-versatile",
-    temperature: 0.7,
-    apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+const model = new ChatGoogle({
+    model: "gemini-2.5-flash",
+    platformType: "gcp",
+    // @ts-ignore - Required for Vertex Express Mode
+    projectId: process.env.GOOGLE_CLOUD_PROJECT,
+    // @ts-ignore
+    location: process.env.GOOGLE_CLOUD_LOCATION ?? "us-central1",
+    apiKey: process.env.GOOGLE_API_KEY,
 });
 
 // **Zod Schema for Information Extraction**
